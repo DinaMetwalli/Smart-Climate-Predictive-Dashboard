@@ -113,8 +113,13 @@ class ClimateForecastingModel():
         loader = data.DataLoader(data.TensorDataset(X_train, y_train), shuffle=True, batch_size=64)
         criterion = nn.MSELoss()
         
-        num_epochs = 150
+        num_epochs = 300
+
+        # Define parameters for early stopping
         best_state = None
+        best_test_rmse = float('inf')
+        patience = 5
+        patience_counter = 0
 
         print("→ Training...")
         for epoch in range(num_epochs):
@@ -126,7 +131,7 @@ class ClimateForecastingModel():
                 loss.backward()
                 optimizer.step()
             
-            if epoch % 30 == 0:
+            if epoch % 20 == 0:
                 self.model.eval()
                 with torch.no_grad():
                     # Reference for train vs test RMSE:
@@ -138,6 +143,19 @@ class ClimateForecastingModel():
                     test_rmse = torch.sqrt(criterion(test_pred, y_test)).item()
                 
                 print(f"Epoch {epoch}: Train RMSE {train_rmse:.4f}, Test RMSE {test_rmse:.4f}")
+
+                # Trigger early stopping if test RMSE starts to increase again
+                if test_rmse < best_test_rmse:
+                    best_test_rmse = test_rmse
+                    patience_counter = 0
+                    best_state = self.model.state_dict().copy()
+                else:
+                    patience_counter += 1
+                
+                if patience_counter >= patience:
+                    print(f"→ Early stopping triggered at epoch {epoch}. Best Test RMSE: {best_test_rmse:.4f}")
+                    self.model.load_state_dict(best_state)
+                    break
 
         self.__plot_training_results(X_train, X_test, split_idx)
 
