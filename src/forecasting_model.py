@@ -129,13 +129,15 @@ class ClimateForecastingModel():
             if epoch % 30 == 0:
                 self.model.eval()
                 with torch.no_grad():
+                    # Reference for train vs test RMSE:
+                    # https://discuss.pytorch.org/t/rmse-loss-function/16540
                     train_pred = self.model(X_train)
                     train_rmse = torch.sqrt(criterion(train_pred, y_train)).item()
                     
                     test_pred = self.model(X_test)
                     test_rmse = torch.sqrt(criterion(test_pred, y_test)).item()
                 
-                print(f"Epoch {epoch}: Train RMSE {train_rmse:.4f}, Test RMSE {test_rmse:.4f}, Actual Error")
+                print(f"Epoch {epoch}: Train RMSE {train_rmse:.4f}, Test RMSE {test_rmse:.4f}")
 
         self.__plot_training_results(X_train, X_test, split_idx)
 
