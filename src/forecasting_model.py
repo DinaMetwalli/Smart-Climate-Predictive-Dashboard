@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.utils.data as data
 import matplotlib.pyplot as plt
 import pickle
 from sklearn.preprocessing import MinMaxScaler
@@ -109,20 +110,32 @@ class ClimateForecastingModel():
         X_test, y_test = self.__create_sequences(test_data)
 
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.0005)
+        loader = data.DataLoader(data.TensorDataset(X_train, y_train), shuffle=True, batch_size=64)
         criterion = nn.MSELoss()
         
-        num_epochs = 300
+        num_epochs = 150
+        best_state = None
 
         print("→ Training...")
         for epoch in range(num_epochs):
             self.model.train()
-            optimizer.zero_grad()
-            preds = self.model(X_train)
-            loss = criterion(preds, y_train)
-            loss.backward()
-            optimizer.step()
-            if epoch % 50 == 0:
-                print(f"Epoch {epoch:02d} | Train RMSE: {loss.item():.5f}")
+            for X_batch, y_batch in loader:
+                y_pred = self.model(X_batch)
+                loss = criterion(y_pred, y_batch)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+            
+            if epoch % 30 == 0:
+                self.model.eval()
+                with torch.no_grad():
+                    train_pred = self.model(X_train)
+                    train_rmse = torch.sqrt(criterion(train_pred, y_train)).item()
+                    
+                    test_pred = self.model(X_test)
+                    test_rmse = torch.sqrt(criterion(test_pred, y_test)).item()
+                
+                print(f"Epoch {epoch}: Train RMSE {train_rmse:.4f}, Test RMSE {test_rmse:.4f}, Actual Error")
 
         self.__plot_training_results(X_train, X_test, split_idx)
 
