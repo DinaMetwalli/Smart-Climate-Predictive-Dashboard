@@ -14,11 +14,8 @@ class ClimateForecastingModel():
         self.dataset = data
         self.seq_len = seq_len
         self.forecast_num = forecast_num # Amount of months to predict for the future at each step
-
-        self.num_features = 4
-        # self.num_features = 3
+        self.num_features = 3
         self.output_dim = forecast_num
-
         self.scaler = MinMaxScaler(feature_range=(-1, 1))
         self.model = LSTMModel(input_dim=self.num_features,
                                hidden_dim=64,
@@ -67,7 +64,7 @@ class ClimateForecastingModel():
 
         print(f"→ Scaler saved to 'scaler.pkl'.")
     
-    def __encode_cyclical_data(self, df) -> None:
+    def __encode_cyclical_data(self, dataset) -> None:
         """
         Adds Sine/Cosine seasonality and a time trend for contextualisation of different time periods
         This is done to help the model pick up on the upward-trend of anomaly increase and diff seasons
@@ -76,17 +73,15 @@ class ClimateForecastingModel():
         Args:
             df (pd.DataFrame): the dataframe returned from the data loader.
         """
-        df = df.copy()
+        df = dataset.copy()
 
         df['Month_Idx'] = np.arange(len(df)) % 12
         df['Month_Sin'] = np.sin(2 * np.pi * df['Month_Idx'] / 12)
         df['Month_Cos'] = np.cos(2 * np.pi * df['Month_Idx'] / 12)
-        df['Time_Trend'] = np.arange(len(df)) / len(df)
         
         print(df.head())
         
-        return df[['Anomaly', 'Month_Sin', 'Month_Cos', 'Time_Trend']].values.astype(np.float32)
-        # return df[['Anomaly', 'Month_Sin', 'Month_Cos']].values.astype(np.float32)
+        return df[['Anomaly', 'Month_Sin', 'Month_Cos']].values.astype(np.float32)
 
     def __create_sequences(self, data):
         """Creates sequences from the given dataframe."""
