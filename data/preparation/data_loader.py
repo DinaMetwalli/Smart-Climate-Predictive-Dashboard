@@ -2,9 +2,7 @@ import pandas as pd
 import numpy as np
 import requests
 import os
-import logging
 import xarray as xr
-import regionmask
 from pathlib import Path
 
 class DataLoader():
@@ -78,9 +76,13 @@ class DataLoader():
         
         for region in self.regions_list:
             print(f"→ Fetching {region.title()}'s data...")
+
+            coverage = 'land'
+            if region == 'arctic' or region == 'antarctic':
+                coverage = 'land_ocean'
             
             # Dynamic HTTP GET request for each region
-            url = f"https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/{region}/tavg/land/1/0.json"
+            url = f"https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/{region}/tavg/{coverage}/1/0.json"
             
             try:
                 response = requests.get(url)
