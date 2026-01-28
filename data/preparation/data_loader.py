@@ -54,7 +54,7 @@ class DataLoader():
             pd.DataFrame: the processed dataset.
         """
         # Only works with CSV for now, will be modified later to support NC as well.
-        df.columns = ['Year', 'Anomaly']
+        df.columns = ['Year', 'Anomaly', 'Region']
         df['Anomaly'] = df['Anomaly'].astype(float)
         df = df.set_index('Year')
 
