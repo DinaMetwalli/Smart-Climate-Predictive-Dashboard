@@ -70,13 +70,12 @@ class ClimateForecastingModel():
         """
         Adds Sine/Cosine seasonality and a time trend for contextualisation of different time periods
         This is done to help the model pick up on the upward-trend of anomaly increase and diff seasons
-        reference: https://www.kaggle.com/code/avanwyk/encoding-cyclical-features-for-deep-learning)
+        reference: https://www.kaggle.com/code/avanwyk/encoding-cyclical-features-for-deep-learning
 
         Args:
             df (pd.DataFrame): the dataframe returned from the data loader.
         """
         df = dataset.copy()
-
         df['Month_Idx'] = np.arange(len(df)) % 12
         df['Month_Sin'] = np.sin(2 * np.pi * df['Month_Idx'] / 12)
         df['Month_Cos'] = np.cos(2 * np.pi * df['Month_Idx'] / 12)
@@ -84,6 +83,7 @@ class ClimateForecastingModel():
         # Use One-Hot Encoding to add the region as a feature
         df_encoded = pd.get_dummies(df, columns=['Region'])
 
+        # Note: anomaly must be the first feature given to the model to fit the create_sequences() function
         feature_cols = ['Anomaly', 'Month_Sin', 'Month_Cos']
         for region in self.regions:
             feature = "Region_" + region
@@ -102,13 +102,16 @@ class ClimateForecastingModel():
         X, y = [], []
 
         for i in range(len(data) - self.seq_len - self.forecast_num + 1):
+            # Creates seq_len sequences with all features
             X.append(data[i : i + self.seq_len])
+            # Creates a sequence starting from the seq_len to the seq_len + forecast num for the anomaly
             y.append(data[i + self.seq_len : i + self.seq_len + self.forecast_num, 0])
         return torch.tensor(np.array(X)), torch.tensor(np.array(y))
     
     def __train_model(self):
         TRAIN_SPLIT = 0.8
         encoded_data = self.__encode_cyclical_data(self.dataset)
+        # Fit and transform only the anomaly data
         encoded_data[:, 0:1] = self.scaler.fit_transform(encoded_data[:, 0:1])
 
         split_idx = int(len(encoded_data) * TRAIN_SPLIT)
