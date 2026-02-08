@@ -6,4 +6,11 @@ class InvalidFileTypeError(UserError):
     """Error for when an unsupported file type is provided."""
 
 class IncompatibleDataError(UserError):
-    """Error for invalid dataset values or """
+    """Error for invalid dataset structure."""
+
+class FileProcessingError(UserError):
+    """
+    Error for when an exception occurs on file processing.
+    
+    E.g. unable to open the file.
+    """
