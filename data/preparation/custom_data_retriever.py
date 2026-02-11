@@ -5,8 +5,9 @@ import numpy as np
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError
 
 class CustomDatasetRetriever:
-    def __init__(self, file):
+    def __init__(self, file, filename):
         self.file = file
+        self.filename = filename
     
     def load_dataset_from_file(self) -> None:
         
@@ -21,9 +22,9 @@ class CustomDatasetRetriever:
         return validated_ds
     
     def validate_file_type(self) -> str:
-        if self.file.filename.endswith(".csv"):
+        if self.filename.endswith(".csv"):
             return "csv"
-        elif self.file.filename.endswith(".nc"):
+        elif self.filename.endswith(".nc"):
             return "nc"
         else:
             raise InvalidFileTypeError("Ivalid file type provided. Files must have CSV or NC extensions.")
