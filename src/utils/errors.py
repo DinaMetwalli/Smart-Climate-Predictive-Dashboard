@@ -14,3 +14,6 @@ class FileProcessingError(UserError):
     
     E.g. unable to open the file.
     """
+
+class FileTypeMismatchError(UserError):
+    """Error for when different (supported) file types are uploaded."""

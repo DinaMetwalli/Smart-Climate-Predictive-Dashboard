@@ -8,14 +8,14 @@ class DataLoader():
         
         print("→ insitialized DataLoader ←")
 
-    def load_data(self, file = None) -> None:
+    def load_data(self, file_data = None) -> None:
         """
         Dynamically loads the dataset depending on its type (file upload or API call)
         """
-        if not file:
+        if not file_data:
             return self.__process_regional_api_data()
         else:
-            return self.__process_file_data(file)
+            return self.__process_file_data(file_data)
 
         
     def __process_file_data(self, df) -> pd.DataFrame:
