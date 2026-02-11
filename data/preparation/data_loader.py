@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
 import requests
-import os
-import xarray as xr
-from pathlib import Path
 
 class DataLoader():
     def __init__(self, regions:list):
