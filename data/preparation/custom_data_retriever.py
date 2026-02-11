@@ -17,8 +17,6 @@ class CustomDatasetRetriever:
         
         validated_ds = self.validate_regions(ds)
 
-        self.dataset = validated_ds
-
         return validated_ds
     
     def validate_file_type(self) -> str:
@@ -65,10 +63,10 @@ class CustomDatasetRetriever:
         valid_regions = ["africa", "asia", "europe", "northAmerica", "southAmerica", "oceania"]
         ds_regions = ds['Region'].unique()
         
-        if list(ds_regions) not in valid_regions:
+        if not set(ds_regions).issubset(valid_regions):
             raise IncompatibleDataError("One or more of the given continents/regions are not recognised. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
         
-        validated_ds = ds['Region'].map(lambda x: x.lower())
+        ds['Region'] = ds['Region'].map(lambda x: x.lower())
 
-        return validated_ds
+        return ds
