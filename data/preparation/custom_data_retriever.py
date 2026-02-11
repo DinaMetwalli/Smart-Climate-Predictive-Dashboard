@@ -1,4 +1,5 @@
 import pandas as pd
+import xarray as xr
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError
 
 class CustomDatasetRetriever:
@@ -18,10 +19,10 @@ class CustomDatasetRetriever:
     def get_dataset(self):
         return self.dataset
     
-    def validate_file_type(self, file_path) -> str:
-        if file_path.endswith(".csv"):
+    def validate_file_type(self, file_name) -> str:
+        if file_name.endswith(".csv"):
             return "csv"
-        elif file_path.endswith(".nc"):
+        elif file_name.endswith(".nc"):
             return "nc"
         else:
             raise InvalidFileTypeError("Ivalid file type provided. Files must have CSV or NC extensions.")
@@ -42,4 +43,15 @@ class CustomDatasetRetriever:
         return data
 
     def parse_nc(self, file):
-        pass
+        try:
+            data = xr.open_dataset(file)
+            expected_cols = ['Date', 'Anomaly', 'Region']
+
+            if list(data.variables.keys()) != expected_cols:
+                raise IncompatibleDataError(
+                    "The provided dataset structure is incompatible. Please ensure the columns (Date, Anomaly, Region) are present."
+                )
+        except Exception:
+            raise FileProcessingError("An error was encountered when opening the file.")
+        
+        return data
