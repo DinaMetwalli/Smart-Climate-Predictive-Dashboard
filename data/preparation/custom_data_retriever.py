@@ -9,9 +9,13 @@ class CustomDatasetRetriever:
     def load_dataset_from_file(self, file) -> None:
         
         file_type = self.validate_file_type(file)
-        data = self.validate_file_data(file, file_type)
+        ds = self.validate_file_data(file, file_type)
+        
+        validated_ds = self.validate_regions(ds)
 
-        self.dataset = data
+        self.dataset = validated_ds
+
+        return validated_ds
 
     def get_dataset(self):
         return self.dataset
@@ -54,3 +58,15 @@ class CustomDatasetRetriever:
             raise FileProcessingError("An error was encountered when opening the file.")
         
         return data
+    
+    def validate_regions(self, ds):
+        valid_regions = ["africa", "asia", "europe", "northAmerica", "southAmerica", "oceania"]
+        ds_regions = ds['Region'].unique()
+        
+        if ds_regions not in valid_regions:
+            raise IncompatibleDataError("One or more of the given continents/regions are not recognised. Allowed values: Africa, Asia," \
+            " Europe, Northamerica, Southamerica, Oceania.")
+        
+        validated_ds = ds['Region'].map(lambda x: x.lower())
+
+        return validated_ds
