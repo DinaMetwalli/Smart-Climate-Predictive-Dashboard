@@ -22,11 +22,10 @@ class DataLoader():
         """
         Processes a dataset opened from the file type.
 
-        Args:
-            df (pd.DataFrame): the dataset's dataframe.
+        :param df: the dataset's dataframe.
 
-        Returns:
-            pd.DataFrame: the processed dataset.
+        :return: the processed dataset.
+        :rtype: pd.DataFrame
         """
         
         df = df.replace(np.nan, None)
@@ -43,8 +42,8 @@ class DataLoader():
         """
         Fetches and combines data from multiple regions into a single DataFrame.
 
-        Returns:
-            pd.DataFrame: the processed, combined dataset from the API call.
+        :return: the processed, combined dataset from the API call.
+        :rtype: pd.DataFrame
         """
         
         all_dfs = []

@@ -1,3 +1,5 @@
+"""Module for handling custom error types."""
+
 class UserError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)

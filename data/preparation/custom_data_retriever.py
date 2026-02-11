@@ -10,6 +10,13 @@ class CustomDatasetRetriever:
         self.filenames = filenames
     
     def load_dataset_from_file(self) -> pd.DataFrame:
+        """
+        Calls all needed validation checks for single or multi-file uploads.
+        Multi-file uploads are concatenated into a single DF to be returned.
+        
+        :return: combined_df as the combined dataframe.
+        :rtype: pd.DataFrame
+        """
         file_type = self.validate_file_type()
 
         all_dfs = []
@@ -26,6 +33,15 @@ class CustomDatasetRetriever:
         return combined_df
     
     def validate_file_type(self) -> str:
+        """
+        Validates file type formats to be supported files only.
+        
+        :return: the type of the files uploaded.
+        :rtype: str
+        
+        :raises InvalidFileTypeError: if the uploaded file isn't supported.
+        :raises FileTypeMismatchError: if multiple files are uploaded with different types.
+        """
         file_types = []
 
         for filename in self.filenames:
@@ -42,6 +58,17 @@ class CustomDatasetRetriever:
         return file_types[0]
 
     def validate_columns(self, file, file_type) -> pd.DataFrame:
+        """
+        Validates file structure to ensure columns match with the model's required inputs.
+        
+        :param file: the file to be processed.
+        :param file_type: the type of the file to be processed.
+        :return: the data of the file.
+        :rtype: DataFrame
+
+        :raises FileProcessingError: for any exceptions that occur when opening the file.
+        :raises IncompatibleDataError: if the file doesn't have the expected columns.
+        """
         try:
             if file_type == "csv":
                 data = pd.read_csv(file)
@@ -61,19 +88,35 @@ class CustomDatasetRetriever:
             
         return data
     
-    def validate_data_types(self, data) -> None:
+    def validate_data_types(self, ds) -> None:
+        """
+        Validates the data types of the file's fields to match those expected by the model.
+        
+        :param ds: the data of the file to be processed.
+
+        :raises IncompatibleDataError: if there is an incorrect data type found (depending on the column).
+        """
         # Check all input data is of the expected type
-        if not np.issubdtype(data['Date'].dtype, np.integer):
+        if not np.issubdtype(ds['Date'].dtype, np.integer):
             raise IncompatibleDataError("Provided column 'Date' contains non-numeric values. Expected format: YYYYMM")
         
-        if not np.issubdtype(data['Anomaly'].dtype, np.number):
+        if not np.issubdtype(ds['Anomaly'].dtype, np.number):
             raise IncompatibleDataError("Provided column 'Anomaly' contains non-numeric values.")
         
-        if not pd.api.types.is_string_dtype(data['Region']):
+        if not pd.api.types.is_string_dtype(ds['Region']):
             raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
     
     def validate_regions(self, ds) -> pd.DataFrame:
+        """
+        Validates the regions in the data to match those expected by the model.
+        
+        :param ds: the data of the file to be processed.
+        :return: the validated dataset with the regions in lowercase to be as the model expects.
+        :rtype: DataFrame
+
+        :raises IncompatibleDataError: if the regions in the file are unsupported or if multiple regions are found in the same file.
+        """
         valid_regions = ["africa", "asia", "europe", "northAmerica", "southAmerica", "oceania"]
         ds_regions = ds['Region'].unique()
         
