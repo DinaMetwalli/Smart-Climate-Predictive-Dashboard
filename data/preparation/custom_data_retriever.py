@@ -7,12 +7,9 @@ class CustomDatasetRetriever:
         self.dataset = None
     
     def load_dataset_from_file(self, file) -> None:
+        
         file_type = self.validate_file_type(file)
-
-        if file_type == "csv":
-            data = self.parse_csv(file)
-        else:
-            data = self.parse_nc(file)
+        data = self.validate_file_data(file, file_type)
 
         self.dataset = data
 
@@ -27,30 +24,32 @@ class CustomDatasetRetriever:
         else:
             raise InvalidFileTypeError("Ivalid file type provided. Files must have CSV or NC extensions.")
 
-    def parse_csv(self, file):
+    def validate_file_data(self, file, file_type):
         try:
-            data = pd.read_csv(file)
-            expected_cols = ['Date', 'Anomaly', 'Region']
+            cols = ['Anomaly', 'Date', 'Region']
+            
+            if file_type == "csv":
+                data = pd.read_csv(file)
+            else:
+                ds = xr.open_dataset(file)
+                data = ds.to_dataframe().reset_index()
 
-            if list(data.columns.values) != expected_cols:
+            if set(data.columns.values) != set(cols):
                 raise IncompatibleDataError(
-                    "The provided dataset structure is incompatible. Please ensure the columns (Date, Anomaly, Region) are present."
+                    "The provided dataset structure is incompatible. Please ensure the fields (Date, Anomaly, Region) are present in that order."
                     )
+            
+            # Check all input data is of the expected type
+            if not data['Date'].map(lambda x: isinstance(x, int)).all():
+                raise IncompatibleDataError("Provided column 'Date' contains non-numeric values. Expected format: YYYYMM")
+            
+            if not data['Anomaly'].map(lambda x: isinstance(x, (int, float))).all():
+                raise IncompatibleDataError("Provided column 'Anomaly' contains non-numeric values.")
+            
+            if not data['Region'].map(lambda x: isinstance(x, str)).all():
+                raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
+                " Europe, Northamerica, Southamerica, Oceania.")
         
-        except Exception:
-            raise FileProcessingError("An error was encountered when opening the file.")
-        
-        return data
-
-    def parse_nc(self, file):
-        try:
-            data = xr.open_dataset(file)
-            expected_cols = ['Date', 'Anomaly', 'Region']
-
-            if list(data.variables.keys()) != expected_cols:
-                raise IncompatibleDataError(
-                    "The provided dataset structure is incompatible. Please ensure the columns (Date, Anomaly, Region) are present."
-                )
         except Exception:
             raise FileProcessingError("An error was encountered when opening the file.")
         
