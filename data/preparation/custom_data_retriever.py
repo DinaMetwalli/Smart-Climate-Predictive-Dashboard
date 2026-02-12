@@ -9,7 +9,7 @@ class CustomDatasetRetriever:
         self.files = files
         self.filenames = filenames
     
-    def load_dataset_from_file(self) -> pd.DataFrame:
+    def load_dataset_from_file(self) -> tuple[pd.DataFrame, list]:
         """
         Calls all needed validation checks for single or multi-file uploads.
         Multi-file uploads are concatenated into a single DF to be returned.
@@ -24,13 +24,13 @@ class CustomDatasetRetriever:
         for file in self.files:
             ds = self.validate_columns(file, file_type)
             self.validate_data_types(ds)
-            validated_ds = self.validate_regions(ds)
+            validated_ds, regions_list = self.validate_regions(ds)
 
             all_dfs.append(validated_ds)
 
         combined_df = pd.concat(all_dfs)
         
-        return combined_df
+        return combined_df, regions_list
     
     def validate_file_type(self) -> str:
         """
@@ -107,7 +107,7 @@ class CustomDatasetRetriever:
             raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
     
-    def validate_regions(self, ds) -> pd.DataFrame:
+    def validate_regions(self, ds) -> tuple[pd.DataFrame, list]:
         """
         Validates the regions in the data to match those expected by the model.
         
@@ -129,4 +129,4 @@ class CustomDatasetRetriever:
         
         ds['Region'] = ds['Region'].map(lambda x: x.lower())
 
-        return ds
+        return ds, list(ds_regions)

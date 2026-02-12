@@ -1,5 +1,6 @@
 import pytest
 import os
+import pandas as pd
 from pathlib import Path
 from data.preparation.custom_data_retriever import CustomDatasetRetriever
 from src.utils.errors import FileTypeMismatchError
@@ -24,9 +25,13 @@ def test_upload_csv_file():
     file = os.path.join(FILE_PATH, CORRECT_CSV_FILE)
     retriever = CustomDatasetRetriever(files=[file], filenames=[CORRECT_CSV_FILE])
 
-    dataset = retriever.load_dataset_from_file()
+    dataset, regions_list = retriever.load_dataset_from_file()
     
     assert dataset is not None
+    assert regions_list is not None
+
+    assert type(dataset) == pd.DataFrame
+    assert type(regions_list) == list
 
     assert "Date" in dataset.columns
     assert "Anomaly" in dataset.columns
@@ -36,9 +41,13 @@ def test_upload_nc_file():
     file = os.path.join(FILE_PATH, CORRECT_NC_FILE)
     retriever = CustomDatasetRetriever(files=[file], filenames=[CORRECT_NC_FILE])
 
-    dataset = retriever.load_dataset_from_file()
+    dataset, regions_list = retriever.load_dataset_from_file()
     
     assert dataset is not None
+    assert regions_list is not None
+
+    assert type(dataset) == pd.DataFrame
+    assert type(regions_list) == list
 
     assert "Date" in dataset.columns
     assert "Anomaly" in dataset.columns
