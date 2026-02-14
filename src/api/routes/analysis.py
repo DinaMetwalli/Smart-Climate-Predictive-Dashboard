@@ -4,7 +4,7 @@ from flask import current_app
 analysis_pb = Blueprint("analysis_pb", __name__)
 
 @analysis_pb.route("/custom", methods=["POST"])
-def get_user_upload():
+def analyse_user_upload():
     if "file" not in request.files:
         return jsonify({"error": "No file part."}), 400
     
