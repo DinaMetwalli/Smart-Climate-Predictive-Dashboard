@@ -5,11 +5,10 @@ import numpy as np
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError, FileTypeMismatchError
 
 class CustomDatasetRetriever:
-    def __init__(self, files:list, filenames:list):
-        self.files = files
-        self.filenames = filenames
+    def __init__(self):
+        print("→ insitialized Custom Data Retriever←")
     
-    def load_dataset_from_file(self) -> tuple[pd.DataFrame, list]:
+    def load_dataset_from_file(self, files:list, filenames: list) -> tuple[pd.DataFrame, list]:
         """
         Calls all needed validation checks for single or multi-file uploads.
         Multi-file uploads are concatenated into a single DF to be returned.
@@ -17,11 +16,11 @@ class CustomDatasetRetriever:
         :return: combined_df as the combined dataframe.
         :rtype: pd.DataFrame
         """
-        file_type = self.validate_file_type()
+        file_type = self.validate_file_type(filenames)
 
         all_dfs = []
 
-        for file in self.files:
+        for file in files:
             ds = self.validate_columns(file, file_type)
             self.validate_data_types(ds)
             validated_ds, regions_list = self.validate_regions(ds)
@@ -32,7 +31,7 @@ class CustomDatasetRetriever:
         
         return combined_df, regions_list
     
-    def validate_file_type(self) -> str:
+    def validate_file_type(self, filenames: list) -> str:
         """
         Validates file type formats to be supported files only.
         
@@ -44,7 +43,7 @@ class CustomDatasetRetriever:
         """
         file_types = []
 
-        for filename in self.filenames:
+        for filename in filenames:
             if filename.endswith(".csv"):
                 file_types.append("csv")
             elif filename.endswith(".nc"):
