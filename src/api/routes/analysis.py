@@ -26,3 +26,20 @@ def analyse_user_upload():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+@analysis_pb.route("/live", methods=["GET"])
+def analyse_live_request():
+    print("User requested live analysis.")
+
+    service = current_app.config["ANALYSIS-SERVICE"]
+    regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
+
+    try:
+        predictions = service.run_live_analysis(regions)
+        return jsonify({
+            "message": "Live analysis completed successfully.",
+            "data": predictions
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
