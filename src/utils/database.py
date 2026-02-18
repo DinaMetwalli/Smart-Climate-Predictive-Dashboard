@@ -117,6 +117,8 @@ class Database:
                     sql = f.read()
                     self.execute_and_commit(sql)
 
+        print("="*60)
+
     def __verify_database_exists(self):
         print("→ Testing PostgreSQL database connection...")
         test_dbname = "postgres"
@@ -132,5 +134,11 @@ class Database:
     def close_db_connection(self, *dbname: str) -> None:
         if not dbname:
             dbname = self.dbname
-        self.connection.close()
+        try:
+            self.connection.close()
+        except psycopg2.Error as e:
+            if not self.connection:
+                print("Error: no connection was found to any instances right now.")
+            else:
+                raise e
         print(f"→ Connection with database {dbname} ended.")
