@@ -12,22 +12,31 @@ class AnalysisService():
         self.custom_loader = CustomDatasetRetriever()
     
     def run_custom_analysis(self, custom_files: list, filenames: list) -> list:
-        data, regions = self.custom_loader.load_dataset_from_file(custom_files,
+        datasets = self.custom_loader.load_dataset_from_file(custom_files,
                                                                   filenames)
         
-        processed_ds = self.loader.load_data(regions, data)
+        combined_preds = []
         
-        predictions = self.model.predict_future(dataset=processed_ds,
+        for region, data in datasets.items():
+            processed_ds = self.loader.load_data(region, data)
+        
+            predictions = self.model.predict_future(dataset=processed_ds,
                                                 months_to_test=60,
                                                 test_future=False)
+            
+            combined_preds.append(predictions)
 
-        return predictions
+        return combined_preds
     
     def run_live_analysis(self, regions: list) -> list:
         processed_ds = self.loader.load_data(regions_list=regions)
 
-        predictions = self.model.predict_future(dataset=processed_ds,
-                                                months_to_test=60,
-                                                test_future=False)
+        combined_preds = []
         
-        return predictions
+        for ds in processed_ds.values():
+            predictions = self.model.predict_future(dataset=ds,
+                                                    months_to_test=60,
+                                                    test_future=False)
+            combined_preds.append(predictions)
+        
+        return combined_preds

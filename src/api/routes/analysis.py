@@ -8,16 +8,20 @@ def analyse_user_upload():
     if "file" not in request.files:
         return jsonify({"error": "No file part."}), 400
     
-    file = request.files["file"]
+    files = request.files.getlist("file")
+    filenames = []
 
-    if file.filename == "":
+    if files is None:
         return jsonify({"error": "No file selected."}), 400
     
-    print(f"User uploaded file: {file.filename}")
+    for file in files:
+        print(f"User uploaded file: {file.filename}")
+        filenames.append(file.filename)
+    
     service = current_app.config["ANALYSIS-SERVICE"]
 
     try:
-        predictions = service.run_custom_analysis([file], [file.filename])
+        predictions = service.run_custom_analysis(files, filenames)
 
         return jsonify({
             "message" : "File processed successfully.",
