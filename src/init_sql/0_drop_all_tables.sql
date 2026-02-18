@@ -1,0 +1,5 @@
+DROP TABLE analysis_history CASCADE;
+DROP TABLE analysis_uploads CASCADE;
+DROP TABLE regions CASCADE;
+DROP TABLE predictions CASCADE;
+DROP TABLE users CASCADE;
