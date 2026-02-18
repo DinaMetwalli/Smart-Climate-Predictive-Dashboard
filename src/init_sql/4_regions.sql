@@ -1,4 +1,4 @@
 CREATE TABLE IF NOT EXISTS regions(
-    id integer NOT NULL UNIQUE,
+    id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     region text NOT NULL UNIQUE
 )

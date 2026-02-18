@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS predictions(
-    id uuid NOT NULL UNIQUE,
+    id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     month_index integer NOT NULL UNIQUE,
     prediction_val decimal(5,5) NOT NULL,
     analysis_id uuid NOT NULL,
-    region_id integer NOT NULL,
+    region_id uuid NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT analysis_FK FOREIGN KEY (analysis_id)
     REFERENCES analysis_history(id),
