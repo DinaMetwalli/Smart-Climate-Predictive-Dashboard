@@ -8,7 +8,7 @@ class CustomDatasetRetriever:
     def __init__(self):
         print("→ insitialized Custom Data Retriever←")
     
-    def load_dataset_from_file(self, files:list, filenames: list) -> tuple[pd.DataFrame, list]:
+    def load_dataset_from_file(self, files:list, filenames: list) -> dict:
         """
         Calls all needed validation checks for single or multi-file uploads.
         Multi-file uploads are concatenated into a single DF to be returned.
@@ -18,18 +18,19 @@ class CustomDatasetRetriever:
         """
         file_type = self.validate_file_type(filenames)
 
-        all_dfs = []
+        all_dfs = dict()
 
         for file in files:
             ds = self.validate_columns(file, file_type)
             self.validate_data_types(ds)
-            validated_ds, regions_list = self.validate_regions(ds)
+            validated_ds, region = self.validate_regions(ds)
 
-            all_dfs.append(validated_ds)
+            all_dfs[region] = validated_ds
 
-        combined_df = pd.concat(all_dfs)
+
+        print(all_dfs)
         
-        return combined_df, regions_list
+        return all_dfs
     
     def validate_file_type(self, filenames: list) -> str:
         """
@@ -106,7 +107,7 @@ class CustomDatasetRetriever:
             raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
     
-    def validate_regions(self, ds) -> tuple[pd.DataFrame, list]:
+    def validate_regions(self, ds) -> tuple[pd.DataFrame, str]:
         """
         Validates the regions in the data to match those expected by the model.
         
@@ -117,15 +118,15 @@ class CustomDatasetRetriever:
         :raises IncompatibleDataError: if the regions in the file are unsupported or if multiple regions are found in the same file.
         """
         valid_regions = ["africa", "asia", "europe", "northAmerica", "southAmerica", "oceania"]
-        ds_regions = ds['Region'].unique()
+        ds_region = ds['Region'].unique()
         
-        if not set(ds_regions).issubset(valid_regions):
+        if not set(ds_region).issubset(valid_regions):
             raise IncompatibleDataError("One or more of the given continents/regions are not recognised. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
         
-        if len(ds_regions) > 1:
+        if len(ds_region) > 1:
             raise IncompatibleDataError("Only one region is allowed per file. If you would like to analyse multiple continents/regions please upload multiple files.")
         
         ds['Region'] = ds['Region'].map(lambda x: x.lower())
 
-        return ds, list(ds_regions)
+        return ds, ds_region[0]
