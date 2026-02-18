@@ -6,7 +6,7 @@ class DataLoader():
     def __init__(self):
         print("→ insitialized DataLoader ←")
 
-    def load_data(self, regions_list: list, file_data: pd.DataFrame = None) -> None:
+    def load_data(self, regions_list: list, file_data: pd.DataFrame = None) -> dict | pd.DataFrame:
         """
         Dynamically loads the dataset depending on its type (file upload or API call)
         """
@@ -44,7 +44,7 @@ class DataLoader():
         :rtype: pd.DataFrame
         """
         
-        all_dfs = []
+        all_dfs = dict()
         
         print("→ Fetching Global Data... ←")
         
@@ -70,16 +70,11 @@ class DataLoader():
                 temp_df['Region'] = region
                 temp_df = temp_df.set_index('Date')
                 
-                all_dfs.append(temp_df)
+                # all_dfs.append(temp_df)
+                all_dfs[region] = temp_df
                 
             except Exception as e:
                 print(f"Failed to fetch data for {region}: {e}")
 
         # Combine all regions into one list
-        if all_dfs:
-            global_df = pd.concat(all_dfs)
-            print(f"→ Global Data Loaded. Total rows: {len(global_df)} ←")
-            return global_df
-        else:
-            raise Exception("→ No data was found for any of the regions provided.")
-            
+        return all_dfs
