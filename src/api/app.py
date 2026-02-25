@@ -1,5 +1,6 @@
 from pathlib import Path
 from flask import Flask
+from datetime import timedelta
 
 from .routes.pages import pages_bp
 from .routes.analysis import analysis_bp
@@ -15,6 +16,8 @@ import os
 
 def main():
     app = Flask(__name__)
+    app.secret_key = 'very-secret-key'
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=3) # Session expires after 3 days
 
     # Initialise the database once only in the child process
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':

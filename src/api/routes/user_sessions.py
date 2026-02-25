@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, session
 from src.utils.database_config import db
 
 user_bp = Blueprint("user_bp", __name__)
@@ -76,6 +76,12 @@ def login_user():
     try:
         user = user_manager.login_user(username, password)
         if user:
+            
+            # Store user info in session
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session.permanent = True
+
             return jsonify({"success": True, "user": user}), 200
         return jsonify({"success": False, "error": "Invalid credentials"}), 401
     except Exception as e:
