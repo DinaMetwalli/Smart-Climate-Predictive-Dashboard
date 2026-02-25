@@ -1,10 +1,10 @@
-from .utils.database_config import db
-from.utils.errors import PasswordTooShortError, InvalidUsername, UsernameAlreadyExistsError, UsernameTooShortError, UserDoesNotExist
+from src.utils.database_config import db
+from src.utils.errors import PasswordTooShortError, InvalidUsername, UsernameAlreadyExistsError, UsernameTooShortError, UserDoesNotExist
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import datetime;
 
-class UserManager:
+class UserManagerService:
     def __init__(self):
         print("→ insitialized User Manager ←")
 
