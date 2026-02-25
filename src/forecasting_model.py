@@ -6,19 +6,21 @@ import torch.utils.data as data
 import matplotlib.pyplot as plt
 import pickle
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder
 from pathlib import Path
 import os
 
 class ClimateForecastingModel():
-    def __init__(self, data: pd.DataFrame, seq_len:int = 36, forecast_num:int = 12, model_file: str = None, scaler_file: str = None):
-        self.dataset = data
+    def __init__(self, seq_len:int = 36, forecast_num:int = 12, model_file: str = None, scaler_file: str = None):
+        self.dataset = None
+        self.regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
         self.seq_len = seq_len
         self.forecast_num = forecast_num # Amount of months to predict for the future at each step
-        self.num_features = 3
+        self.num_features = 3 + len(self.regions)
         self.output_dim = forecast_num
         self.scaler = MinMaxScaler(feature_range=(-1, 1))
         self.model = LSTMModel(input_dim=self.num_features,
-                               hidden_dim=64,
+                               hidden_dim=128,
                                layer_dim=1,
                                output_dim=self.output_dim)
         
@@ -26,19 +28,15 @@ class ClimateForecastingModel():
 
         if model_file:
                 print("→ Loading saved model... ←")
-                BASE_DIR = Path.cwd().parent
-                path = BASE_DIR / "Smart-Climate-Predictive-Dashboard"
-                model_path = os.path.join(path, model_file)
-                scaler_path = os.path.join(path, scaler_file)
 
-                print(model_path)
-                print(scaler_path)
+                print(model_file)
+                print(scaler_file)
 
-                if os.path.exists(model_path):
-                    self.model.load_state_dict(torch.load(model_path))
+                if os.path.exists(model_file):
+                    self.model.load_state_dict(torch.load(model_file))
                     self.model.eval()
 
-                    with open(scaler_path, "rb") as f:
+                    with open(scaler_file, "rb") as f:
                         self.scaler = pickle.load(f)
 
                     print(f"→ Successfully loaded trained model and scaler from regional_climate_lstm.pth and scaler.pkl")
@@ -48,6 +46,9 @@ class ClimateForecastingModel():
         else:
             print("→ No saved model found, initiating model training... ←")
             self.__train_model()
+
+    def set_dataset(self, data: pd.DataFrame) -> None:
+        self.dataset = data
 
     def save_model(self, path:str = "regional_climate_lstm.pth") -> None:
         """
@@ -78,10 +79,22 @@ class ClimateForecastingModel():
         df['Month_Idx'] = np.arange(len(df)) % 12
         df['Month_Sin'] = np.sin(2 * np.pi * df['Month_Idx'] / 12)
         df['Month_Cos'] = np.cos(2 * np.pi * df['Month_Idx'] / 12)
+
+        # Use One-Hot Encoding to add the region as a feature
+        df_encoded = pd.get_dummies(df, columns=['Region'])
+
+        feature_cols = ['Anomaly', 'Month_Sin', 'Month_Cos']
+        for region in self.regions:
+            feature = "Region_" + region
+            feature_cols.append(feature)
+            if feature in df_encoded.columns:
+                continue
+            else:
+                df_encoded[feature] = False
+
+        print(df_encoded[feature_cols].head())
         
-        print(df.head())
-        
-        return df[['Anomaly', 'Month_Sin', 'Month_Cos']].values.astype(np.float32)
+        return df_encoded[feature_cols].values.astype(np.float32)
 
     def __create_sequences(self, data):
         """Creates sequences from the given dataframe."""
@@ -104,8 +117,8 @@ class ClimateForecastingModel():
         X_train, y_train = self.__create_sequences(train_data)
         X_test, y_test = self.__create_sequences(test_data)
 
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.0005)
-        loader = data.DataLoader(data.TensorDataset(X_train, y_train), shuffle=True, batch_size=64)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
+        loader = data.DataLoader(data.TensorDataset(X_train, y_train), shuffle=True, batch_size=128)
         criterion = nn.MSELoss()
         
         num_epochs = 300
@@ -169,8 +182,8 @@ class ClimateForecastingModel():
         # Plot the training results
         plt.figure(figsize=(14, 5))
         plt.plot(actuals, label="Actual Anomaly", color="black", alpha=0.3)
-        plt.plot(range(self.seq_len, split_idx - self.forecast_num + 1), train_preds, label="Train Fit (Next Month)", color="blue")
-        plt.plot(range(split_idx, split_idx + len(test_preds)), test_preds, label="Test Prediction (Next Month)", color="green")
+        plt.plot(range(self.seq_len, split_idx - self.forecast_num + 1), train_preds, label="Train Fit", color="blue")
+        plt.plot(range(split_idx, split_idx + len(test_preds)), test_preds, label="Test Prediction", color="green")
         plt.legend()
         plt.show()
 
@@ -224,7 +237,8 @@ class ClimateForecastingModel():
         
         # Convert back to actual temperature anomalies and plot
         blind_preds_rescaled = self.scaler.inverse_transform(np.array(preds).reshape(-1, 1))
-        self.__plot_prediction(dataset, blind_preds_rescaled, predict_start_idx, test_future)
+        # self.__plot_prediction(dataset, blind_preds_rescaled, predict_start_idx, test_future)
+        return preds
 
     def __plot_prediction(self, actual_df, forecast_values, split_idx, test_future):
         actuals = actual_df['Anomaly'].values

@@ -9,8 +9,7 @@ from ..utils.database_config import db
 
 from .services.analysis_service import AnalysisService
 from .services.user_manager_service import UserManagerService
-# from src.forecasting_model import ClimateForecastingModel
-from src.temp_model import ClimateForecastingModel
+from src.forecasting_model import ClimateForecastingModel
 
 import os
 

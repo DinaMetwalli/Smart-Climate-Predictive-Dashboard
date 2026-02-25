@@ -6,7 +6,7 @@ from src.utils.errors import InvalidFileTypeError, FileProcessingError, Incompat
 
 class CustomDatasetRetriever:
     def __init__(self):
-        print("→ insitialized Custom Data Retriever←")
+        print("→ insitialized Custom Data Retriever ←")
     
     def load_dataset_from_file(self, files:list, filenames: list) -> dict:
         """
