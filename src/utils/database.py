@@ -23,9 +23,11 @@ class Database:
         self.config_file = config_file
         self.section = section
 
+    def initialise_on_start(self) -> None:
+        
         # Load configuration/connection parameters
         self.__load_config()
-
+        
         # Initialise connection to database
         self.__create_db_connection(self.dbname)
 
@@ -94,7 +96,7 @@ class Database:
         self.execute(query, *vars)
         self.connection.commit()
 
-    def execute_and_fetchall(self, query: str, *vars: Any) -> list[tuple]:
+    def execute_and_fetch_all(self, query: str, *vars: Any) -> list[tuple]:
         cur = self.execute(query, *vars)
         return cur.fetchall()
     
@@ -123,7 +125,7 @@ class Database:
         print("→ Testing PostgreSQL database connection...")
         test_dbname = "postgres"
         self.__create_db_connection(test_dbname)
-        all_databases = self.execute_and_fetchall("SELECT datname FROM pg_database;")
+        all_databases = self.execute_and_fetch_all("SELECT datname FROM pg_database;")
 
         if (self.dbname,) not in all_databases:
             print(f"Database {self.dbname} does not exist. Creating {self.dbname}...")
