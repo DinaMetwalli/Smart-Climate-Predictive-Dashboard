@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask import current_app
 
+from .utils.auth import authorize
+
 analysis_bp = Blueprint("analysis_bp", __name__)
 
 @analysis_bp.route("/custom", methods=["POST"])
+@authorize
 def analyse_user_upload():
     if "file" not in request.files:
         return jsonify({"error": "No file part."}), 400
