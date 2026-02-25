@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from flask import current_app
 
-analysis_pb = Blueprint("analysis_pb", __name__)
+analysis_bp = Blueprint("analysis_bp", __name__)
 
-@analysis_pb.route("/custom", methods=["POST"])
+@analysis_bp.route("/custom", methods=["POST"])
 def analyse_user_upload():
     if "file" not in request.files:
         return jsonify({"error": "No file part."}), 400
@@ -31,7 +31,7 @@ def analyse_user_upload():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-@analysis_pb.route("/live", methods=["GET"])
+@analysis_bp.route("/live", methods=["GET"])
 def analyse_live_request():
     print("User requested live analysis.")
 
