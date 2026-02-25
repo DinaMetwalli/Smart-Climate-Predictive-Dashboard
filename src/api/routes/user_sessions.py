@@ -87,6 +87,28 @@ def login_user():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
     
+@user_bp.route("/users/logout", methods=["POST"])
+def logout_user():
+    """Logout user and clear session."""
+    
+    session.clear()
+    return jsonify({"success": True, "message": "Logged out"}), 200
+
+@user_bp.route("/users/me", methods=["GET"])
+def get_current_user():
+    """Get currently logged-in user info."""
+
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+    
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": session['user_id'],
+            "username": session['username']
+        }
+    }), 200
+    
 @user_bp.route("/users/delete", methods=["POST"])
 def delete_user():
     """Deactivate a user account."""
