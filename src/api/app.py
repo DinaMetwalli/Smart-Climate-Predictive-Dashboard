@@ -9,6 +9,7 @@ from ..utils.database_config import db
 
 from .services.analysis_service import AnalysisService
 from .services.user_manager_service import UserManagerService
+from .services.analysis_history_service import AnalysisHistoryService
 from src.forecasting_model import ClimateForecastingModel
 
 import os
@@ -32,10 +33,12 @@ def main():
     model = ClimateForecastingModel(seq_len=60, forecast_num=60, model_file=model_path, scaler_file=scaler_path)
     analysis_service = AnalysisService(model)
     user_manager = UserManagerService()
+    analysis_history_service = AnalysisHistoryService()
 
     app.config["MODEL"] = model
     app.config["ANALYSIS-SERVICE"] = analysis_service
     app.config["USER-MANAGER"] = user_manager
+    app.config["HISTORY-SERVICE"] = analysis_history_service
 
     # Register Blueprints
     app.register_blueprint(pages_bp)
