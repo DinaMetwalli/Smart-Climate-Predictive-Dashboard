@@ -40,10 +40,9 @@ def get_user(username):
 def register_user():
     """Register a user and commit to the database."""
     
-    # Extract parameters from request body
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    # Extract parameters from request form
+    username = request.form.get('username')
+    password = request.form.get('password')
     
     print(f"Registering user {username}...")
 
@@ -64,9 +63,9 @@ def register_user():
 def login_user():
     """Authenticate a user."""
     
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    # Extract parameters from request form
+    username = request.form.get('username')
+    password = request.form.get('password')
     
     if not username or not password:
         return jsonify({"success": False, "error": "Username and password required"}), 400
