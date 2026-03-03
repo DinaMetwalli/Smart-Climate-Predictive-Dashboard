@@ -9,8 +9,15 @@
 
     <h2>Upload CSV</h2>
 
+    <form action="/api/users/login" method="POST" enctype="multipart/form-data">
+        <input type="text" name="username" required>
+        <input type="text" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+
     <form action="/analysis/custom" method="POST" enctype="multipart/form-data">
         <input type="file" name="file" required multiple>
+        <input type="text" name="analysis_name" required>
         <button type="submit">Upload</button>
     </form>
 
