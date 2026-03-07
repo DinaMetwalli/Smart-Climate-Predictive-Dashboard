@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Login - Smart Climate Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poltawski+Nowy:ital,wght@0,400..700;1,400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* -- Overwrite styling in static style file for a customised login page -- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 0.15fr 1fr;
+            grid-template-rows: 100px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        .main-content {
+            overflow-y: auto;
+        }
+
+        .auth-container {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 40px var(--shadow);
+            height: auto !important;
+            min-height: 70vh;
+        }
+
+        .auth-section {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-section:first-child {
+            padding: 3rem 2rem;
+        }
+
+        .auth-section:last-child {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .auth-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <h1 class="app-title">Smart Climate Predictive Dashboard <i class="fa-solid fa-wand-magic-sparkles"></i></h1>
+        </header>
+
+        <!-- Left Sidebar For Navigation -->
+        <nav class="left-sidebar">
+            <a href="/" class="nav-item">
+                <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
+                Analysis
+            </a>
+            <a href="/upload" class="nav-item">
+                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
+            </a>
+            <a href="/charts" class="nav-item">
+                <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
+                Charts
+            </a>
+            <a href="/history" class="nav-item">
+                <span class="nav-icon nav-icon-history" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
+                History
+            </a>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <section class="auth-container">
+                <div class="auth-section">
+                    <div class="auth-wrapper">
+                        <div class="welcome-message">
+                            <h2>Climate Data Analysis Platform</h2>
+                            <p>Access advanced predictive models and comprehensive climate analysis tools.</p>
+                        </div>
+
+                        <div class="auth-card">
+                            <div class="auth-header">
+                                <h1>Welcome Back!</h1>
+                                <p>Sign in to your account</p>
+                            </div>
+
+                            {% if error %}
+                            <div class="error-message">{{ error }}</div>
+                            {% endif %}
+
+                            <form method="POST" action="/api/users/register">
+                                <div class="form-group">
+                                    <label class="form-label" for="username">Username</label>
+                                    <input
+                                        class="form-input"
+                                        type="text"
+                                        id="username"
+                                        name="username"
+                                        placeholder="Enter your username"
+                                        required
+                                        autofocus
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="password">Password</label>
+                                    <input
+                                        class="form-input"
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Enter your password"
+                                        required
+                                        autocomplete="off"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="re-enter-password">Re-enter Password</label>
+                                    <input
+                                        class="form-input"
+                                        type="password"
+                                        id="re-enter-password"
+                                        name="re-enter-password"
+                                        placeholder="Enter your password again"
+                                        required
+                                        autocomplete="off"
+                                    >
+                                </div>
+
+                                <button class="btn-submit" type="submit">
+                                    <span>Register</span>
+                                </button>
+                            </form>
+
+                            <hr class="divider">
+
+                            <p class="auth-footer">
+                                Already have an account? <a href="/login">Login</a>
+                            </p>
+                        </div>
+
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-file-arrow-up"></i></div>
+                                <div class="feature-text">Secure authentication and encrypted data storage</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                                <div class="feature-text">Save and track your custom analysis results</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fa-solid fa-universal-access"></i></div>
+                                <div class="feature-text">Access your complete analysis history</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-section">
+                    <img src="static/aurora-lights.jpeg" alt="Italian Trulli">
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

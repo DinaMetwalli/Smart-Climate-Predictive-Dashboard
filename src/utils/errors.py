@@ -23,6 +23,9 @@ class FileTypeMismatchError(UserError):
 class PasswordTooShortError(UserError):
     """Error for when the password used for registration is less than 8 characters."""
 
+class PasswordDoesNotMatchError(UserError):
+    """Error for when the password entered again on registration does not match the first one."""
+
 class UsernameTooShortError(UserError):
     """Error for when the username used for registration is less than 4 characters."""
 

@@ -42,6 +42,7 @@ def register_user():
     # Extract parameters from request form
     username = request.form.get('username')
     password = request.form.get('password')
+    same_password = request.form.get('re-enter-password')
     
     print(f"Registering user {username}...")
 
@@ -52,7 +53,7 @@ def register_user():
     user_manager = current_app.config["USER-MANAGER"]
 
     try:
-        result = user_manager.register_user(username, password)
+        result = user_manager.register_user(username, password, same_password)
         if result:
             return jsonify({"success": True, "message": "User registered"}), 201
     except Exception as e:

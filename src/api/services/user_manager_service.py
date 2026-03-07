@@ -1,5 +1,7 @@
 from src.utils.database_config import db
-from src.utils.errors import PasswordTooShortError, InvalidUsername, UsernameAlreadyExistsError, UsernameTooShortError, UserDoesNotExist
+from src.utils.errors import (PasswordTooShortError, PasswordDoesNotMatchError,
+                              InvalidUsername, UsernameAlreadyExistsError,
+                              UsernameTooShortError, UserDoesNotExist)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import datetime;
@@ -28,10 +30,10 @@ class UserManagerService:
             raise UserDoesNotExist("No matching accounts could be found for the provided username.")
         return user
     
-    def register_user(self, username: str, password: str) -> bool:
+    def register_user(self, username: str, password: str, same_password: str) -> bool:
         
         # Complete all input validation checks first
-        if self.validate_password(password) and self.validate_username(username):
+        if self.validate_username(username) and self.validate_same_password(password, same_password) and self.validate_password(password):
             password_hash = generate_password_hash(password)
             timestamp = datetime.datetime.now()
             db.execute_and_commit(
@@ -72,6 +74,11 @@ class UserManagerService:
     def validate_password(self, password:str) -> bool:
         if len(password) < 8:
             raise PasswordTooShortError("The provided password is too short. It must contain at least 8 or more characters.")
+        return True
+    
+    def validate_same_password(self, password:str, same_password:str) -> bool:
+        if same_password != password:
+            raise PasswordDoesNotMatchError("Passwords do not match.")
         return True
     
     def validate_username(self, username:str) -> bool:
