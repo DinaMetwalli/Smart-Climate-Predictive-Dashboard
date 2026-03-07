@@ -1,5 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, session
-from src.utils.database_config import db
+from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -81,7 +80,7 @@ def login_user():
             session['username'] = user['username']
             session.permanent = True
 
-            return jsonify({"success": True, "user": user}), 200
+            return redirect(url_for("pages_bp.index"))
         return jsonify({"success": False, "error": "Invalid credentials"}), 401
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -91,7 +90,7 @@ def logout_user():
     """Logout user and clear session."""
     
     session.clear()
-    return jsonify({"success": True, "message": "Logged out"}), 200
+    return redirect(url_for("pages_bp.index"))
 
 @user_bp.route("/users/me", methods=["GET"])
 def get_current_user():
