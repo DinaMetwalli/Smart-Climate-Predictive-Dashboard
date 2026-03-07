@@ -1,27 +1,185 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Upload File</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Smart Climate Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script type="text/javascript" src="../static/js/file-uploads.js"></script>
+    <script type="text/javascript" src="../static/js/temperature-map.js"></script>
 </head>
 
 <body>
+    <div class="app-container">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <h1 class="app-title">Smart Climate Predictive Dashboard</h1>
+        </header>
 
-    <h2>Upload CSV</h2>
+        <!-- Left Sidebar For Navigation -->
+        <nav class="left-sidebar">
+            <a href="#" class="nav-item active">
+                <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
+                Analysis
+            </a>
+            <a href="/" class="nav-item">
+                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
+                Charts
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon nav-icon-history" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
+                History
+            </a>
+        </nav>
 
-    <form action="/api/users/login" method="POST" enctype="multipart/form-data">
-        <input type="text" name="username" required>
-        <input type="text" name="password" required>
-        <button type="submit">Login</button>
-    </form>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Analysis Output Window -->
+            <div class="output-window">
+                <h2 class="output-header">Analysis Output</h2>
+                <div class="output-content">
+                    <div id="map-container">
+                        <div id="world-map"></div>
+                        <div class="legend">
+                            <div class="legend-title">Temperature Anomaly (°C)</div>
+                            <div class="legend-gradient"></div>
+                            <div class="legend-labels">
+                                <span>-2.0</span>
+                                <span>-1.0</span>
+                                <span>-0.5</span>
+                                <span>0.0</span>
+                                <span>0.5</span>
+                                <span>1.0</span>
+                                <span>2.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <form action="/analysis/custom" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" required multiple>
-        <input type="text" name="analysis_name" required>
-        <button type="submit">Upload</button>
-    </form>
+            <!-- User Action Buttons -->
+            <div class="button-grid">
+                <form action="/upload" method="GET" enctype="multipart/form-data">
+                    <button class="action-button" type="submit">
+                        <div class="button-icon"><i class="fa-solid fa-diagram-next"></i></div>
+                        <div class="button-label">Custom Analysis</div>
+                        <div class="button-description">Select your own files to analyze</div>
+                    </button>
+                </form>
 
-    <a href="/live"> Live Analysis Page </a>
+                <form action="/analysis/live" method="GET" enctype="multipart/form-data">
+                    <button class="action-button" type="submit">
+                        <div class="button-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div class="button-label">Live Analysis</div>
+                        <div class="button-description">Get live results immediately</div>
+                    </button>
+                </form>
+
+                {% if session.username %}
+                <form action="/history" method="GET" enctype="multipart/form-data">
+                    <button class="action-button">
+                        <div class="button-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <div class="button-label">Run Previous Analysis</div>
+                        <div class="button-description">Choose a previous entry from your history</div>
+                    </button>
+                </form>
+                {% else %}
+                <div class="disabled-button">
+                    <div class="button-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                    <div class="button-label" style="color: var(--text-secondary)">Run Previous Analysis</div>
+                    <div class="button-description">Login to choose a previous entry from your history</div>
+                </div>
+                {% endif %}
+
+            </div>
+        </main>
+
+        <!-- Right Panel For Chart Outputs -->
+        <div class="right-panel">
+            {% block content %}
+            {% if session.username %}
+            <div class="panel-section">
+                <h3 class="panel-title">User Status</h3>
+                <div class="info-card" style="transform: translateX(0px);">
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        {{ session.username }}
+                    </div>
+                </div>
+                
+                <div class="user-action-form">
+                    <form action="/login" method="GET" enctype="multipart/form-data">
+                        <button type="submit" class="btn-submit">
+                            <span>Switch Account</span>
+                        </button>
+                    </form>
+                    <form action="/api/users/logout" method="POST" enctype="multipart/form-data">
+                        <button type="submit" class="btn-submit">
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="panel-section">
+                <h3 class="panel-title">User Status</h3>
+                <div class="info-card">
+                        Please login or register to save custom analysis results and view your analysis upload history.
+                </div>
+                <form action="/login" method="GET" enctype="multipart/form-data">
+                    <button type="submit" class="btn-submit">
+                        <span>Login</span>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            {% endblock %}
+
+            <div class="panel-section">
+                <h3 class="panel-title">Upload Info</h3>
+                <div class="info-card">
+                    <div class="info-label">Files Selected</div>
+                    <div class="info-value" id="fileCount">0</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Analysis Name</div>
+                    <div class="info-value" id="analysisNameDisplay">Not set</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Total Size</div>
+                    <div class="info-value" id="totalSize">0 KB</div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3 class="panel-title">Recent Activity</h3>
+                <div class="info-card">
+                    <div class="info-label">Last Upload</div>
+                    <div class="info-value">Never</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Analyses Run</div>
+                    <div class="info-value">0</div>
+                </div>
+                <div class="user-action-form" style="width: 210%;">
+                    <form action="/login" method="GET" enctype="multipart/form-data">
+                        <button type="submit" class="btn-submit">
+                            <span>Check Analysis Charts →</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
-
 </html>
