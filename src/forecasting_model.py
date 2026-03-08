@@ -7,16 +7,17 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder
 from pathlib import Path
 import os
 
 class ClimateForecastingModel():
-    def __init__(self, data: pd.DataFrame, regions: list, seq_len:int = 36, forecast_num:int = 12, model_file: str = None, scaler_file: str = None):
-        self.dataset = data
-        self.regions = regions
+    def __init__(self, seq_len:int = 36, forecast_num:int = 12, model_file: str = None, scaler_file: str = None):
+        self.dataset = None
+        self.regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
         self.seq_len = seq_len
         self.forecast_num = forecast_num # Amount of months to predict for the future at each step
-        self.num_features = 3 + len(regions)
+        self.num_features = 3 + len(self.regions)
         self.output_dim = forecast_num
         self.scaler = MinMaxScaler(feature_range=(-1, 1))
         self.model = LSTMModel(input_dim=self.num_features,
@@ -28,19 +29,15 @@ class ClimateForecastingModel():
 
         if model_file:
                 print("→ Loading saved model... ←")
-                BASE_DIR = Path.cwd().parent
-                path = BASE_DIR / "Smart-Climate-Predictive-Dashboard"
-                model_path = os.path.join(path, model_file)
-                scaler_path = os.path.join(path, scaler_file)
 
-                print(model_path)
-                print(scaler_path)
+                print(model_file)
+                print(scaler_file)
 
-                if os.path.exists(model_path):
-                    self.model.load_state_dict(torch.load(model_path))
+                if os.path.exists(model_file):
+                    self.model.load_state_dict(torch.load(model_file))
                     self.model.eval()
 
-                    with open(scaler_path, "rb") as f:
+                    with open(scaler_file, "rb") as f:
                         self.scaler = pickle.load(f)
 
                     print(f"→ Successfully loaded trained model and scaler from regional_climate_lstm.pth and scaler.pkl")
@@ -50,6 +47,9 @@ class ClimateForecastingModel():
         else:
             print("→ No saved model found, initiating model training... ←")
             self.__train_model()
+
+    def set_dataset(self, data: pd.DataFrame) -> None:
+        self.dataset = data
 
     def save_model(self, path:str = "regional_climate_lstm.pth") -> None:
         """
@@ -83,7 +83,6 @@ class ClimateForecastingModel():
         # Use One-Hot Encoding to add the region as a feature
         df_encoded = pd.get_dummies(df, columns=['Region'])
 
-        # Note: anomaly must be the first feature given to the model to fit the create_sequences() function
         feature_cols = ['Anomaly', 'Month_Sin', 'Month_Cos']
         for region in self.regions:
             feature = "Region_" + region
@@ -241,7 +240,8 @@ class ClimateForecastingModel():
         
         # Convert back to actual temperature anomalies and plot
         blind_preds_rescaled = self.scaler.inverse_transform(np.array(preds).reshape(-1, 1))
-        self.__plot_prediction(dataset, blind_preds_rescaled, predict_start_idx, test_future)
+        # self.__plot_prediction(dataset, blind_preds_rescaled, predict_start_idx, test_future)
+        return preds
 
     def __plot_prediction(self, actual_df, forecast_values, split_idx, test_future):
         actuals = actual_df['Anomaly'].values

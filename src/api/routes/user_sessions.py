@@ -1,0 +1,127 @@
+from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for, render_template
+
+user_bp = Blueprint("user_bp", __name__)
+
+@user_bp.route("/users", methods=["GET"])
+def get_all_users():
+    """
+    Get all active users.
+    """
+    print("Fetching all users...")
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        users = user_manager.get_all_users()
+        if users:
+            return jsonify({"success": True, 'users': users}), 200
+        return jsonify({"success": False, "error": "No users registered."}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+@user_bp.route("/users/<username>", methods=["POST"])
+def get_user(username):
+    """Get a specific user from the database."""
+
+    print(f"Fetching user {username}...")
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        user = user_manager.get_user(username)
+        if user:
+            return jsonify({"success": True, 'user': user}), 200
+        return jsonify({"success": False, "error": "User not found."}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+@user_bp.route("/users/register", methods=["POST"])
+def register_user():
+    """Register a user and commit to the database."""
+    
+    # Extract parameters from request form
+    username = request.form.get('username')
+    password = request.form.get('password')
+    same_password = request.form.get('re-enter-password')
+    
+    print(f"Registering user {username}...")
+
+    # Validate all needed parameters are present in request
+    if not username or not password:
+        return jsonify({"success": False, "error": "Username and password required"}), 400
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        result = user_manager.register_user(username, password, same_password)
+        if result:
+            return jsonify({"success": True, "message": "User registered"}), 201
+    except Exception as e:
+        return render_template("register.html", error=str(e))
+
+@user_bp.route("/users/login", methods=["POST"])
+def login_user():
+    """Authenticate a user."""
+    
+    # Extract parameters from request form
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if not username or not password:
+        return jsonify({"success": False, "error": "Username and password required"}), 400
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        user = user_manager.login_user(username, password)
+        if user:
+            
+            # Store user info in session
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session.permanent = True
+
+            return redirect(url_for("pages_bp.index"))
+        return jsonify({"success": False, "error": "Invalid credentials"}), 401
+    except Exception as e:
+        return render_template("login.html", error=str(e))
+    
+@user_bp.route("/users/logout", methods=["POST"])
+def logout_user():
+    """Logout user and clear session."""
+    
+    session.clear()
+    return redirect(url_for("pages_bp.index"))
+
+@user_bp.route("/users/me", methods=["GET"])
+def get_current_user():
+    """Get currently logged-in user info."""
+
+    if 'user_id' not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+    
+    return jsonify({
+        "success": True,
+        "user": {
+            "id": session['user_id'],
+            "username": session['username']
+        }
+    }), 200
+    
+@user_bp.route("/users/delete", methods=["POST"])
+def delete_user():
+    """Deactivate a user account."""
+
+    data = request.get_json()
+    user_id = data.get('user_id')
+    
+    if not user_id:
+        return jsonify({"success": False, "error": "User ID required in request"}), 400
+    
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        user_manager.delete_user(user_id)
+        return jsonify({"success": True, "message": "Deleted user successfully."}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
