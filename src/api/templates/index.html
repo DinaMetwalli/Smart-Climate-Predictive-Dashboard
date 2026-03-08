@@ -6,12 +6,11 @@
     
     <title>Smart Climate Dashboard</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script type="text/javascript" src="../static/js/file-uploads.js"></script>
     <script type="text/javascript" src="../static/js/temperature-map.js"></script>
 </head>
 
@@ -19,27 +18,36 @@
     <div class="app-container">
         <!-- Top Bar -->
         <header class="top-bar">
-            <h1 class="app-title">Smart Climate Predictive Dashboard</h1>
+            <h1 class="app-title">🪄 Smart Climate Predictive Dashboard</h1>
         </header>
 
         <!-- Left Sidebar For Navigation -->
         <nav class="left-sidebar">
-            <a href="#" class="nav-item active">
+            <a href="/" class="nav-item active">
                 <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
                 Analysis
             </a>
-            <a href="/" class="nav-item">
+            <a href="/upload" class="nav-item">
                 <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
                 Upload
             </a>
-            <a href="#" class="nav-item">
+            <a href="/charts" class="nav-item">
                 <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
                 Charts
             </a>
-            <a href="#" class="nav-item">
-                <span class="nav-icon nav-icon-history" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
+            {% if session.username %}
+            <form method="GET" action="/api/user/analysis/history">
+                <button type="submit" class="nav-item">
+                    <span class="nav-icon nav-icon-history" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
+                    History
+                </button>
+            </form>
+            {% else %}
+            <button type="submit" class="nav-item disabled">
+                <span class="nav-icon" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
                 History
-            </a>
+            </button>
+            {% endif %}
         </nav>
 
         <!-- Main Content Area -->
@@ -69,19 +77,19 @@
 
             <!-- User Action Buttons -->
             <div class="button-grid">
-                <form action="/upload" method="GET" enctype="multipart/form-data">
-                    <button class="action-button" type="submit">
-                        <div class="button-icon"><i class="fa-solid fa-diagram-next"></i></div>
-                        <div class="button-label">Custom Analysis</div>
-                        <div class="button-description">Select your own files to analyze</div>
-                    </button>
-                </form>
-
                 <form action="/analysis/live" method="GET" enctype="multipart/form-data">
                     <button class="action-button" type="submit">
                         <div class="button-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
                         <div class="button-label">Live Analysis</div>
                         <div class="button-description">Get live results immediately</div>
+                    </button>
+                </form>
+
+                <form action="/upload" method="GET" enctype="multipart/form-data">
+                    <button class="action-button" type="submit">
+                        <div class="button-icon"><i class="fa-solid fa-diagram-next"></i></div>
+                        <div class="button-label">Custom Analysis</div>
+                        <div class="button-description">Select your own files to analyze</div>
                     </button>
                 </form>
 
@@ -104,7 +112,7 @@
             </div>
         </main>
 
-        <!-- Right Panel For Chart Outputs -->
+        <!-- Right Panel For Upload Metrics -->
         <div class="right-panel">
             {% block content %}
             {% if session.username %}
@@ -137,7 +145,7 @@
                         Please login or register to save custom analysis results and view your analysis upload history.
                 </div>
                 <form action="/login" method="GET" enctype="multipart/form-data">
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" style="width: 100% !important;">
                         <span>Login</span>
                     </button>
                 </form>

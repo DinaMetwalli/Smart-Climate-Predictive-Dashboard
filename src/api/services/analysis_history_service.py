@@ -36,3 +36,10 @@ class AnalysisHistoryService():
 
     def save_prediction_values(self, analysis_id) -> None:
         pass
+
+    def get_user_analyses(self, user_id) -> list:
+        analyses = db.execute_and_fetch_all("SELECT * FROM analysis_history WHERE user_id = %s",
+                                            user_id)
+        
+        print(analyses)
+        return analyses
