@@ -11,7 +11,7 @@ def analyse_user_upload():
     if "file" not in request.files:
         return jsonify({"error": "No file part."}), 400
     
-    analysis_name = request.form.get('analysis_name')
+    analysis_name = request.form.get('analysisName')
 
     files = request.files.getlist("file")
     filenames = []
@@ -61,3 +61,21 @@ def analyse_live_request():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+# Temporary endpoint with dummy data to connect map with output values for testing! (will be changed later)
+@analysis_bp.route('/predictions/<int:month_index>')
+def get_predictions(month_index):
+    predictions = {
+        "month_index": month_index,
+        "date": "2026-06", # Should be calculated from current + the prediction's month index
+        "continents": {
+            "North America": 0.45,
+            "South America": 0.32,
+            "Europe": 0.58,
+            "Africa": 0.41,
+            "Asia": 0.52,
+            "Oceania": 0.38,
+            "Antarctica": 0.25
+        }
+    }
+    return jsonify(predictions)
