@@ -1,7 +1,7 @@
 :root {
     --primary: #4ba5c9;
     --primary-dark: #076d8b;
-    --secondary: #ff37c3;
+    --secondary: #8957e1;
     --accent: #32d7ae;
     --bg-dark: #0D1117;
     --bg-darker: #010409;
@@ -22,7 +22,7 @@
     --history: #5a5770;
     --feature: #ffffff;
     --shadow: rgba(0, 0, 0, 0.4);
-    --font: 'Nunito';
+    --font: 'Comfortaa';
 }
 
 * {
@@ -89,7 +89,7 @@ body {
 .app-title {
     font-family: var(--font), serif;
     font-size: 2.5rem;
-    font-weight: 800;
+    font-weight: 500;
     background: var(--text-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -138,6 +138,7 @@ body {
     border: 1px solid transparent;
     color: var(--text-secondary);
     text-decoration: none;
+    font-family: var(--font);
     font-weight: 500;
     font-size: 0.95rem;
     transition: all 0.3s ease;
@@ -145,6 +146,7 @@ body {
     align-items: center;
     gap: 0.8rem;
     cursor: pointer;
+    width: 100%;
 }
 
 .nav-item:hover {
@@ -152,6 +154,14 @@ body {
     border-color: var(--border);
     color: var(--text-primary);
     transform: translateX(4px);
+}
+
+.nav-item.disabled:hover {
+    cursor: not-allowed;
+    transform: none;
+    color: var(--text-secondary);
+    background: var(--bg-dark);
+    border-color: var(--bg-dark);
 }
 
 .nav-item.active {
@@ -164,7 +174,7 @@ body {
 .nav-icon {
     width: 20px;
     height: 20px;
-    opacity: 0.8;
+    opacity: 1;
     transition: all 0.3s ease;
 }
 
@@ -381,6 +391,7 @@ body {
     border-right: 1px solid var(--border);
     padding: 3.2rem 1.5rem;
     overflow-y: auto;
+    overflow-x: hidden;
     animation: slideInRight 0.5s ease-out;
 }
 
@@ -405,6 +416,10 @@ body {
     line-height: 1.6;
     font-size: 0.95rem;
     text-align: justify;
+}
+
+.panel-section button {
+    width: 100%;
 }
 
 .panel-section:nth-child(1) { animation-delay: 0.6s; }
@@ -444,6 +459,7 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
+    word-wrap: break-word;
 }
 
 /* -- File Upload Styling -- */
@@ -520,6 +536,19 @@ input[type="file"] {
     height: auto;
 }
 
+/* Bottom right text for credit */
+.bottom-right {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.bottom-right a {
+    color: var(--text-primary) !important;
+}
+
 .auth-wrapper {
     width: 100%;
     max-width: 800px;
@@ -530,7 +559,7 @@ input[type="file"] {
     border: 1px solid var(--border);
     border-radius: 20px;
     box-shadow: 0 10px 40px var(--shadow);
-    padding: 3rem;
+    padding: 2rem;
     position: relative;
     overflow: hidden;
     animation: scaleIn 0.6s ease-out;
@@ -554,7 +583,7 @@ input[type="file"] {
 
 .auth-header h1 {
     font-family: var(--font), serif;
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
@@ -562,7 +591,7 @@ input[type="file"] {
 
 .auth-header p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.75rem;
 }
 
 .image {
@@ -576,7 +605,7 @@ input[type="file"] {
 
 .form-label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -589,8 +618,8 @@ input[type="file"] {
     padding: 0.95rem 1.2rem;
     border: 2px solid var(--border);
     border-radius: 12px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1rem;
+    font-family: var(--font), sans-serif;
+    font-size: 0.75rem;
     color: var(--text-primary);
     background: var(--bg-dark);
     outline: none;
@@ -667,7 +696,7 @@ input[type="file"] {
 .auth-footer {
     text-align: center;
     margin-top: 2rem;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
 }
 
@@ -705,13 +734,13 @@ input[type="file"] {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 2rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     text-align: center;
 }
 
 .welcome-message h2 {
     font-family: var(--font), serif;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: var(--text-primary);
     margin-bottom: 0.8rem;
 }
@@ -719,7 +748,7 @@ input[type="file"] {
 .welcome-message p {
     color: var(--text-secondary);
     line-height: 1.6;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
 }
 
 .feature-list {
@@ -759,7 +788,7 @@ input[type="file"] {
 
 .feature-text {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
 
 .legend {
@@ -792,4 +821,118 @@ input[type="file"] {
     font-size: 11px;
     color: var(--text-secondary);
     margin-top: 5px;
+}
+
+.analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+    animation: fadeIn 0.9s ease-out;
+}
+
+.analysis-table th,
+.analysis-table td {
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.analysis-table tr {
+    border-bottom: 1px solid #30363D;
+}
+
+.upload-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.upload-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    background-color: var(--bg-dark);
+    width: 100%;
+    padding: 25px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+}
+
+.upload-info ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.upload-info li {
+    margin-bottom: 6px;
+}
+
+.upload-analysis {
+    background-color: var(--bg-dark);
+    border-radius: 30px;
+    border: 2px solid var(--border);
+    padding: 30px;
+    width: 100%;
+}
+
+.upload-analysis button {
+    width:100%;
+}
+
+.upload-title {
+    margin-bottom: 20px;
+}
+
+.analysis-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.file-drop {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.file-drop input {
+    display: none;
+}
+
+.file-drop-label i {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.file-drop-label p {
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+.file-drop-label span {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.file-list {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.file-item {
+    margin-top: 6px;
+    font-size: 0.9rem;
+}
+
+.file-drop.dragover {
+    border-color: var(--primary);
+    background: rgba(145, 200, 255, 0.08);
 }
