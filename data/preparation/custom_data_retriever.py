@@ -5,11 +5,10 @@ import numpy as np
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError, FileTypeMismatchError
 
 class CustomDatasetRetriever:
-    def __init__(self, files:list, filenames:list):
-        self.files = files
-        self.filenames = filenames
+    def __init__(self):
+        print("→ insitialized Custom Data Retriever ←")
     
-    def load_dataset_from_file(self) -> pd.DataFrame:
+    def load_dataset_from_file(self, files:list, filenames: list) -> dict:
         """
         Calls all needed validation checks for single or multi-file uploads.
         Multi-file uploads are concatenated into a single DF to be returned.
@@ -17,22 +16,23 @@ class CustomDatasetRetriever:
         :return: combined_df as the combined dataframe.
         :rtype: pd.DataFrame
         """
-        file_type = self.validate_file_type()
+        file_type = self.validate_file_type(filenames)
 
-        all_dfs = []
+        all_dfs = dict()
 
-        for file in self.files:
+        for file in files:
             ds = self.validate_columns(file, file_type)
             self.validate_data_types(ds)
-            validated_ds = self.validate_regions(ds)
+            validated_ds, region = self.validate_regions(ds)
 
-            all_dfs.append(validated_ds)
+            all_dfs[region] = validated_ds
 
-        combined_df = pd.concat(all_dfs)
+
+        print(all_dfs)
         
-        return combined_df
+        return all_dfs
     
-    def validate_file_type(self) -> str:
+    def validate_file_type(self, filenames: list) -> str:
         """
         Validates file type formats to be supported files only.
         
@@ -44,7 +44,7 @@ class CustomDatasetRetriever:
         """
         file_types = []
 
-        for filename in self.filenames:
+        for filename in filenames:
             if filename.endswith(".csv"):
                 file_types.append("csv")
             elif filename.endswith(".nc"):
@@ -107,7 +107,7 @@ class CustomDatasetRetriever:
             raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
     
-    def validate_regions(self, ds) -> pd.DataFrame:
+    def validate_regions(self, ds) -> tuple[pd.DataFrame, str]:
         """
         Validates the regions in the data to match those expected by the model.
         
@@ -118,15 +118,15 @@ class CustomDatasetRetriever:
         :raises IncompatibleDataError: if the regions in the file are unsupported or if multiple regions are found in the same file.
         """
         valid_regions = ["africa", "asia", "europe", "northAmerica", "southAmerica", "oceania"]
-        ds_regions = ds['Region'].unique()
+        ds_region = ds['Region'].unique()
         
-        if not set(ds_regions).issubset(valid_regions):
+        if not set(ds_region).issubset(valid_regions):
             raise IncompatibleDataError("One or more of the given continents/regions are not recognised. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
         
-        if len(ds_regions) > 1:
+        if len(ds_region) > 1:
             raise IncompatibleDataError("Only one region is allowed per file. If you would like to analyse multiple continents/regions please upload multiple files.")
         
         ds['Region'] = ds['Region'].map(lambda x: x.lower())
 
-        return ds
+        return ds, ds_region[0]

@@ -3,22 +3,20 @@ import numpy as np
 import requests
 
 class DataLoader():
-    def __init__(self, regions:list):
-        self.regions_list = regions
-        
+    def __init__(self):
         print("→ insitialized DataLoader ←")
 
-    def load_data(self, file_data = None) -> None:
+    def load_data(self, regions_list: list, file_data: pd.DataFrame = None) -> dict | pd.DataFrame:
         """
         Dynamically loads the dataset depending on its type (file upload or API call)
         """
-        if not file_data:
-            return self.__process_regional_api_data()
+        if file_data is None:
+            return self.__process_regional_api_data(regions_list)
         else:
             return self.__process_file_data(file_data)
 
         
-    def __process_file_data(self, df) -> pd.DataFrame:
+    def __process_file_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Processes a dataset opened from the file type.
 
@@ -30,7 +28,7 @@ class DataLoader():
         
         df = df.replace(np.nan, None)
 
-        df.columns = ['Date', 'Anomaly']
+        df.columns = ['Date', 'Anomaly', 'Region']
         df['Anomaly'] = df['Anomaly'].astype(float)
         df = df.set_index('Date')
 
@@ -38,7 +36,7 @@ class DataLoader():
 
         return df
     
-    def __process_regional_api_data(self) -> pd.DataFrame:
+    def __process_regional_api_data(self, regions_list: list) -> pd.DataFrame:
         """
         Fetches and combines data from multiple regions into a single DataFrame.
 
@@ -46,11 +44,11 @@ class DataLoader():
         :rtype: pd.DataFrame
         """
         
-        all_dfs = []
+        all_dfs = dict()
         
         print("→ Fetching Global Data... ←")
         
-        for region in self.regions_list:
+        for region in regions_list:
             print(f"→ Fetching {region.title()}'s data...")
 
             coverage = 'land'
@@ -72,16 +70,11 @@ class DataLoader():
                 temp_df['Region'] = region
                 temp_df = temp_df.set_index('Date')
                 
-                all_dfs.append(temp_df)
+                # all_dfs.append(temp_df)
+                all_dfs[region] = temp_df
                 
             except Exception as e:
                 print(f"Failed to fetch data for {region}: {e}")
 
         # Combine all regions into one list
-        if all_dfs:
-            global_df = pd.concat(all_dfs)
-            print(f"→ Global Data Loaded. Total rows: {len(global_df)} ←")
-            return global_df
-        else:
-            raise Exception("→ No data was found for any of the regions provided.")
-            
+        return all_dfs

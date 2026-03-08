@@ -22,7 +22,7 @@ def main():
     testing_data = testing_loader.load_data()
     
     model.predict_future(dataset=testing_data, months_to_test=60, test_future=False)
-    model.save_model()
+    # model.save_model()
 
 if __name__ == "__main__":
     main()
