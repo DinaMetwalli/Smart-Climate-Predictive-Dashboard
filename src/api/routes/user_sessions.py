@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for
+from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for, render_template
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -57,7 +57,7 @@ def register_user():
         if result:
             return jsonify({"success": True, "message": "User registered"}), 201
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return render_template("register.html", error=str(e))
 
 @user_bp.route("/users/login", methods=["POST"])
 def login_user():
@@ -84,7 +84,7 @@ def login_user():
             return redirect(url_for("pages_bp.index"))
         return jsonify({"success": False, "error": "Invalid credentials"}), 401
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return render_template("login.html", error=str(e))
     
 @user_bp.route("/users/logout", methods=["POST"])
 def logout_user():
