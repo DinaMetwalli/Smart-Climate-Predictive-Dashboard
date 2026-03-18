@@ -1,0 +1,53 @@
+==================================================
+OVERALL TRAINING SET PERFORMANCE
+==================================================
+ RMSE:        0.2126
+ MAE:         0.1619
+ Mean Bias:   -0.0397
+ Correlation: 0.5168
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          0.2033     0.1581     0.3672
+ asia            0.1900     0.1378     0.3298
+ europe          0.1937     0.1471     0.1632
+ northAmerica    0.1993     0.1482     0.3254
+ southAmerica    0.2227     0.1747     0.5699
+ oceania         0.2587     0.2053     0.2372
+
+==================================================
+OVERALL VALIDATION SET PERFORMANCE
+==================================================
+ RMSE:        0.2744
+ MAE:         0.2195
+ Mean Bias:   0.1559
+ Correlation: 0.1334
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          0.2880     0.2384     0.1952
+ asia            0.2784     0.2183     0.2058
+ europe          0.2892     0.2438     0.1270
+ northAmerica    0.2326     0.1786     0.1269
+ southAmerica    0.2563     0.2002     0.1195
+ oceania         0.2967     0.2377     0.1138
+
+==================================================
+OVERALL BACKTEST SET PERFORMANCE
+==================================================
+ RMSE:        1.3196
+ MAE:         1.1283
+ Mean Bias:   1.0864
+ Correlation: -0.0183
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          0.9775     0.9158     0.2067
+ asia            1.5313     1.3781     0.3014
+ europe          1.7526     1.5903     0.0042
+ northAmerica    1.6005     1.4032     -0.2792
+ southAmerica    0.9838     0.8746     0.2685
+ oceania         0.7398     0.6077     -0.2449

@@ -1,0 +1,56 @@
+==================================================
+OVERALL TRAIN SET PERFORMANCE
+==================================================
+ RMSE:        0.6423 °C
+ MAE:         0.4656 °C
+ Mean Bias:   -0.0068 °C
+ Correlation: 0.3945
+ Samples:     1595
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          0.3918     0.3057     0.4815
+ asia            0.7260     0.5232     0.3775
+ europe          0.8250     0.6245     0.1889
+ northAmerica    0.8325     0.6179     0.4005
+ southAmerica    0.4212     0.3313     0.6417
+ oceania         0.4936     0.3911     0.2629
+
+==================================================
+OVERALL VALIDATION SET PERFORMANCE
+==================================================
+ RMSE:        0.9943 °C
+ MAE:         0.7817 °C
+ Mean Bias:   0.6836 °C
+ Correlation: 0.1732
+ Samples:     388
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          0.7172     0.6224     0.4951
+ asia            1.2373     0.9850     0.2535
+ europe          1.3276     1.1274     0.1385
+ northAmerica    1.1089     0.8618     0.1151
+ southAmerica    0.5958     0.4853     0.4388
+ oceania         0.7342     0.6085     0.2481
+
+==================================================
+OVERALL BACKTEST SET PERFORMANCE
+==================================================
+ RMSE:        1.5726 °C
+ MAE:         1.4050 °C
+ Mean Bias:   1.4006 °C
+ Correlation: 0.0253
+ Samples:     1
+
+Per-Region Performance:
+ Region          RMSE       MAE        Correlation
+ --------------------------------------------------
+ africa          1.2298     1.1793     -0.2839
+ asia            1.8701     1.7277     -0.2361
+ europe          1.9797     1.8499     0.2979
+ northAmerica    1.8427     1.6415     -0.4710
+ southAmerica    1.1378     1.0325     -0.1679
+ oceania         1.1043     0.9991     -0.2206

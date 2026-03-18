@@ -1,0 +1,28 @@
+==================================================
+OVERALL TRAIN SET PERFORMANCE
+==================================================
+ RMSE:        0.4070 °C
+ MAE:         0.3166 °C
+ Mean Bias:   -0.0635 °C
+ Correlation: 0.3549
+ Samples:     1533
+
+==================================================
+OVERALL VALIDATION SET PERFORMANCE
+==================================================
+ RMSE:        0.7498 °C
+ MAE:         0.6501 °C
+ Mean Bias:   0.6212 °C
+ Correlation: 0.4077
+ Samples:     388
+
+Running one-shot backtest for 36 months...
+
+==================================================
+OVERALL BACKTEST SET PERFORMANCE
+==================================================
+ RMSE:        1.2708 °C
+ MAE:         1.2186 °C
+ Mean Bias:   1.2186 °C
+ Correlation: -0.4283
+ Samples:     1
