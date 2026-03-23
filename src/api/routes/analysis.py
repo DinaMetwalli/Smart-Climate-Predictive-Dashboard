@@ -36,7 +36,6 @@ def analyse_user_upload():
         
         user_id = session['user_id']
         history_service.save_custom_analysis_results(user_id, analysis_name, filenames)
-
         return jsonify({
             "message" : "File processed successfully.",
             "data" : predictions
@@ -53,7 +52,7 @@ def analyse_live_request():
     regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
 
     try:
-        predictions = service.run_live_analysis(regions)
+        predictions = service.run_live_analysis()
         return jsonify({
             "message": "Live analysis completed successfully.",
             "data": predictions
