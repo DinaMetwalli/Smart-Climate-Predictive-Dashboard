@@ -37,20 +37,20 @@ function displayMap(continents) {
             "Maldives","Mongolia","Myanmar","Nepal","North Korea","Oman","Pakistan","Palestine",
             "Philippines","Qatar","Saudi Arabia","Singapore","South Korea","Sri Lanka","Syria",
             "Taiwan","Tajikistan","Thailand","Timor-Leste","Turkey","Turkmenistan",
-            "United Arab Emirates","Uzbekistan","Vietnam","Yemen"
+            "United Arab Emirates","Uzbekistan","Vietnam","Yemen","Russia"
         ], "Europe": [
             "Albania","Andorra","Austria","Belarus","Belgium","Bosnia and Herzegovina","Bulgaria",
             "Croatia","Czechia","Denmark","Estonia","Finland","France","Germany","Greece",
             "Hungary","Iceland","Ireland","Italy","Kosovo","Latvia","Liechtenstein","Lithuania",
             "Luxembourg","Malta","Moldova","Monaco","Montenegro","Netherlands","North Macedonia",
-            "Norway","Poland","Portugal","Romania","Russia","San Marino","Serbia","Slovakia",
+            "Norway","Poland","Portugal","Romania","San Marino","Serbia","Slovakia",
             "Slovenia","Spain","Sweden","Switzerland","Ukraine","United Kingdom","Vatican City"
         ], "North America": [
             "Antigua and Barbuda","Bahamas","Barbados","Belize","Canada","Costa Rica","Cuba",
             "Dominica","Dominican Republic","El Salvador","Grenada","Guatemala","Haiti",
             "Honduras","Jamaica","Mexico","Nicaragua","Panama","Saint Kitts and Nevis",
             "Saint Lucia","Saint Vincent and the Grenadines","Trinidad and Tobago",
-            "United States"
+            "United States","Green Land"
         ], "South America": [
             "Argentina","Bolivia","Brazil","Chile","Colombia","Ecuador","Guyana","Paraguay",
             "Peru","Suriname","Uruguay","Venezuela"
@@ -82,15 +82,15 @@ function displayMap(continents) {
         text: text,
         hoverinfo: 'text',
         reversescale: false,
-        zmin: 0,
-        zmax: 1.0,
+        zmin: -4.0,
+        zmax: 4.0,
         // showscale: false,
         colorscale: [
-            [0, '#4ba5c9'],
-            [0.25, '#4ba5c9'],
-            [0.5, '#7b4bc9'],
-            [0.75, '#ff37c3'],
-            [1, '#ff37c3']
+            [0,    '#e8d5f5'],
+            [0.25, '#a78de8'],
+            [0.5,  '#6c63d4'],
+            [0.75, '#3a8fc4'],
+            [1,    '#1dd4b4']
         ],
         showscale: false // Hide plotly scale to show custom one.
     }];
