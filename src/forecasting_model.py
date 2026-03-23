@@ -269,13 +269,11 @@ class ClimateForecastingModel():
         plt.tight_layout()
         plt.show()
 
-    def predict_future(self, dataset: pd.DataFrame, region: str, months_to_test: int = 48, test_future: bool = True):
+    def predict_future(self, region_df: pd.DataFrame, region: str, months_to_test: int = 48, test_future: bool = True):
         """Handles both backtesting and future prediction requests."""
         
         if region not in self.regions:
             raise ValueError(f"Unknown region '{region}'... Choose from {self.regions}.")
-
-        region_df = dataset[dataset['Region'] == region].copy()
 
         encoded = self.__encode_cyclical_data(region_df)
         encoded[:, 0:1] = self.anomaly_scalers[region].transform(encoded[:, 0:1])
@@ -307,14 +305,14 @@ class ClimateForecastingModel():
         preds_rescaled = self.anomaly_scalers[region].inverse_transform(preds_np.reshape(-1, 1))
 
         # Region's actual values for plotting
-        region_df_actuals = dataset[dataset['Region'] == region].copy()
+        region_df_actuals = region_df[region_df['Region'] == region].copy()
 
         if not test_future:
             actuals = region_df_actuals['Anomaly'].values[predict_start_idx : predict_start_idx + steps_to_predict]
             self.__print_summary_stats(actuals, preds_rescaled.flatten(), f"Backtest ({region})")
         
         # self.__plot_prediction(region_df_actuals, preds_rescaled, predict_start_idx, test_future, region)
-        return preds_rescaled
+        return preds_rescaled.flatten().tolist()
 
     def __plot_prediction(self, region_df, forecast_values, split_idx, test_future, region):
         """Plots the backtest or future prediction results."""

@@ -18,25 +18,27 @@ class AnalysisService():
         combined_preds = []
         
         for region, data in datasets.items():
-            processed_ds = self.loader.load_data(region, data)
+            processed_ds = self.loader.load_data(data)
         
-            predictions = self.model.predict_future(dataset=processed_ds,
-                                                months_to_test=60,
-                                                test_future=False)
+            predictions = self.model.predict_future(region_df=processed_ds,
+                                                    region=region,
+                                                    months_to_test=60,
+                                                    test_future=False)
             
             combined_preds.append(predictions)
 
         return combined_preds
     
-    def run_live_analysis(self, regions: list) -> list:
-        processed_ds = self.loader.load_data(regions_list=regions)
+    def run_live_analysis(self) -> list:
+        processed_ds = self.loader.load_data()
 
         combined_preds = []
         
-        for ds in processed_ds.values():
-            predictions = self.model.predict_future(dataset=ds,
+        for _, (region, ds) in enumerate(processed_ds.items()):
+            predictions = self.model.predict_future(region_df=ds,
+                                                    region=region,
                                                     months_to_test=60,
-                                                    test_future=False)
+                                                    test_future=True)
             combined_preds.append(predictions)
         
         return combined_preds

@@ -79,11 +79,11 @@ class CustomDatasetRetriever:
         except Exception:
             raise FileProcessingError(f"An error was encountered when opening the file {file}.")
 
-        cols = ['Anomaly', 'Date', 'Region']
+        cols = ['Date', 'Anomaly', 'Region', 'Temperature']
         
         if set(data.columns.values) != set(cols):
             raise IncompatibleDataError(
-                f"The provided dataset structure in {file} is incompatible. Please ensure the fields (Date, Anomaly, Region) are present in that order."
+                f"The provided dataset structure in {file} is incompatible. Please ensure the fields (Date, Anomaly, Region, Temperature) are present in that order."
                 )
             
         return data
@@ -106,6 +106,9 @@ class CustomDatasetRetriever:
         if not pd.api.types.is_string_dtype(ds['Region']):
             raise IncompatibleDataError("Provided column 'Region' contains non-text values. Allowed values: Africa, Asia," \
             " Europe, Northamerica, Southamerica, Oceania.")
+            
+        if not np.issubdtype(ds['Temperature'].dtype, np.number):
+            raise IncompatibleDataError("Provided column 'Temperature' contains non-numeric values.")
     
     def validate_regions(self, ds) -> tuple[pd.DataFrame, str]:
         """

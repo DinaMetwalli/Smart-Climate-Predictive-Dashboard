@@ -1,17 +1,18 @@
 import pandas as pd
 import numpy as np
 import requests
+from owid.catalog import fetch
 
 class DataLoader():
     def __init__(self):
         print("→ insitialized DataLoader ←")
 
-    def load_data(self, regions_list: list, file_data: pd.DataFrame = None) -> dict | pd.DataFrame:
+    def load_data(self, file_data: pd.DataFrame = None) -> dict | pd.DataFrame:
         """
         Dynamically loads the dataset depending on its type (file upload or API call)
         """
         if file_data is None:
-            return self.__process_regional_api_data(regions_list)
+            return self.__process_regional_api_data()
         else:
             return self.__process_file_data(file_data)
 
@@ -36,7 +37,7 @@ class DataLoader():
 
         return df
     
-    def __process_regional_api_data(self, regions_list: list) -> pd.DataFrame:
+    def __process_regional_api_data(self) -> dict:
         """
         Fetches and combines data from multiple regions into a single DataFrame.
 
@@ -45,36 +46,60 @@ class DataLoader():
         """
         
         all_dfs = dict()
+        region_mapping = {
+            'africa': 'Africa (NIAID)',
+            'asia': 'Asia (NIAID)',
+            'europe': 'Europe (NIAID)',
+            'northAmerica': 'North America (NIAID)',
+            'southAmerica': 'South America (NIAID)',
+            'oceania': 'Oceania (NIAID)'
+        }
         
-        print("→ Fetching Global Data... ←")
+        print("- Fetching Global Data -")
         
-        for region in regions_list:
-            print(f"→ Fetching {region.title()}'s data...")
+        # Get temperature anomaly values
+        for noaa_name, owid_name in region_mapping.items():
+            print(f"→ Fetching {noaa_name.title()}'s data...")
 
             coverage = 'land'
-            if region == 'arctic' or region == 'antarctic':
+            if noaa_name == 'arctic' or noaa_name == 'antarctic':
                 coverage = 'land_ocean'
             
             # Dynamic HTTP GET request for each region
-            url = f"https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/{region}/tavg/{coverage}/1/0.json"
+            url = f"https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/{noaa_name}/tavg/{coverage}/1/0.json"
             
             try:
                 response = requests.get(url)
                 data = response.json()
                 
                 # Extract fetched results to DataFrame
-                temp_df = pd.DataFrame.from_dict(data['data'], orient='index').reset_index()
-                temp_df.columns = ['Date', 'Anomaly']
-                temp_df['Anomaly'] = temp_df['Anomaly'].astype(float)
+                anomaly_df = pd.DataFrame.from_dict(data['data'], orient='index').reset_index()
+                anomaly_df.columns = ['Date', 'Anomaly']
+                anomaly_df['Anomaly'] = anomaly_df['Anomaly'].astype(float)
+                anomaly_df['Region'] = noaa_name
+                anomaly_df = anomaly_df.set_index('Date')
+
+                # Save only rows after 1940 to match OWID's data
+                anomaly_df.index = anomaly_df.index.astype(int)
+                anomaly_df = anomaly_df[anomaly_df.index >= 194001]
+
+                # Get absolute temperature values
+                temp_df = fetch("average-monthly-surface-temperature")
+                temp_continent = temp_df.xs(owid_name, level=0)
                 
-                temp_df['Region'] = region
-                temp_df = temp_df.set_index('Date')
+                num_rows = len(anomaly_df)
+                matched_values = temp_continent['temperature_2m'].iloc[:num_rows].values
+                
+                # Assign the values back to the main dataframe
+                anomaly_df['Temperature'] = matched_values
+                
+                print(f"Successfully matched {num_rows} months for {noaa_name}")
                 
                 # all_dfs.append(temp_df)
-                all_dfs[region] = temp_df
+                all_dfs[noaa_name] = anomaly_df
                 
             except Exception as e:
-                print(f"Failed to fetch data for {region}: {e}")
-
+                print(f"Failed to fetch data for {noaa_name}: {e}")
+                
         # Combine all regions into one list
         return all_dfs
