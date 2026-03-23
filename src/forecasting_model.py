@@ -70,11 +70,11 @@ class ClimateForecastingModel():
             dataset (pd.DataFrame): the dataframe returned from the data loader.
         """
         df = dataset.copy()
-        df['Year'] = df.index
+        df['Date'] = df.index
 
         df_encoded = pd.get_dummies(df, columns=['Region'])
 
-        feature_cols = ['Anomaly', 'Temperature', 'Year']
+        feature_cols = ['Anomaly', 'Temperature', 'Date']
         for region in self.regions:
             feature = f'Region_{region}'
             feature_cols.append(feature)

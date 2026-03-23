@@ -28,7 +28,7 @@ class DataLoader():
         
         df = df.replace(np.nan, None)
 
-        df.columns = ['Date', 'Anomaly', 'Region']
+        df.columns = ['Date', 'Anomaly', 'Region', 'Temperature']
         df['Anomaly'] = df['Anomaly'].astype(float)
         df = df.set_index('Date')
 
