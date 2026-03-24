@@ -1,5 +1,6 @@
 from pathlib import Path
 from flask import Flask
+from flask_session import Session
 from datetime import timedelta
 
 from .routes.pages import pages_bp
@@ -40,6 +41,9 @@ def main():
     app.config["ANALYSIS-SERVICE"] = analysis_service
     app.config["USER-MANAGER"] = user_manager
     app.config["HISTORY-SERVICE"] = analysis_history_service
+    app.config["SESSION_TYPE"] = "filesystem"
+    app.config["SESSION_FILE_DIR"] = "./flask_sessions"
+    Session(app)
 
     # Register Blueprints
     app.register_blueprint(pages_bp)

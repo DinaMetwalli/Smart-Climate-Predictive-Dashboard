@@ -1,5 +1,8 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, render_template
 from flask import current_app
+import datetime
+import uuid
+from dateutil.relativedelta import relativedelta
 
 from .utils.auth import authorize
 
@@ -33,48 +36,66 @@ def analyse_user_upload():
 
     try:
         predictions = service.run_custom_analysis(files, filenames)
+        session["predictions"] = predictions
         
         user_id = session['user_id']
         history_service.save_custom_analysis_results(user_id, analysis_name, filenames)
-        return jsonify({
-            "message" : "File processed successfully.",
-            "data" : predictions
-        })
+
+        return render_template("index.html")
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        print(str(e))
+        return render_template("upload.html", error=str(e))
     
 @analysis_bp.route("/live", methods=["GET"])
 def analyse_live_request():
     print("User requested live analysis.")
 
     service = current_app.config["ANALYSIS-SERVICE"]
-    regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
 
     try:
         predictions = service.run_live_analysis()
-        return jsonify({
-            "message": "Live analysis completed successfully.",
-            "data": predictions
-        })
+        session["predictions"] = predictions
+        
+        return render_template("index.html")
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return render_template("index.html", error=str(e))
 
-# Temporary endpoint with dummy data to connect map with output values for testing! (will be changed later)
 @analysis_bp.route('/predictions/<int:month_index>')
 def get_predictions(month_index):
-    predictions = {
-        "month_index": month_index,
-        "date": "2026-06", # Should be calculated from current + the prediction's month index
-        "continents": {
-            "North America": 0.45,
-            "South America": 0.32,
-            "Europe": 0.58,
-            "Africa": 0.41,
-            "Asia": 0.52,
-            "Oceania": 0.38,
-            "Antarctica": 0.25
-        }
+
+    predictions = session.get("predictions")
+
+    current_time = datetime.datetime.today()
+    date = current_time + relativedelta(months=month_index)
+    date = date.strftime('%Y-%m')
+
+    continent_map = {
+        "North America": "northAmerica",
+        "South America": "southAmerica",
+        "Europe": "europe",
+        "Africa": "africa",
+        "Asia": "asia",
+        "Oceania": "oceania"
     }
-    return jsonify(predictions)
+
+    continents = {}
+
+    for display_name, key in continent_map.items():
+        if predictions:
+            preds_list = predictions.get(key)
+            if preds_list and len(preds_list) > month_index:
+                continents[display_name] = preds_list[month_index]
+            else:
+                continents[display_name] = None
+        else:
+            continents[display_name] = None
+
+    response = {
+        "month_index": month_index,
+        "date": date,
+        "continents": continents
+    }
+    
+    return jsonify(response)
