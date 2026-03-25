@@ -69,7 +69,6 @@ function displayMap(continents) {
         countries.forEach(country => {
             locations.push(country);
             values.push(value);
-            text.push(`${name}<br>${value.toFixed(2)}°C`);
         });
     });
     
@@ -82,15 +81,15 @@ function displayMap(continents) {
         text: text,
         hoverinfo: 'text',
         reversescale: false,
-        zmin: 0,
-        zmax: 1.0,
+        zmin: -4,
+        zmax: 4,
         // showscale: false,
         colorscale: [
-            [0, '#4ba5c9'],
-            [0.25, '#4ba5c9'],
-            [0.5, '#7b4bc9'],
-            [0.75, '#ff37c3'],
-            [1, '#ff37c3']
+            [0,    '#e8d5f5'],
+            [0.25, '#a78de8'],
+            [0.5,  '#6c63d4'],
+            [0.75, '#3a8fc4'],
+            [1,    '#1dd4b4']
         ],
         showscale: false // Hide plotly scale to show custom one.
     }];
