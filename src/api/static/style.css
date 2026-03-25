@@ -22,6 +22,8 @@
     --history: #5a5770;
     --feature: #ffffff;
     --shadow: rgba(0, 0, 0, 0.4);
+    --danger: #ff6b6e;
+    --danger-dark: #d54040;
     --font: 'Comfortaa';
 }
 
@@ -680,6 +682,19 @@ input[type="file"] {
     z-index: 1;
 }
 
+.danger-button {
+    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+}
+
+.danger-button::before {
+    background: linear-gradient(135deg, var(--danger-dark) 0%, var(--danger) 100%) !important;
+}
+
+.danger-button:hover {
+    background: linear-gradient(135deg, var(--danger-dark) 0%, var(--danger) 100%) !important;
+    box-shadow: 0 10px 30px rgba(255, 10, 43, 0.4) !important;
+}
+
 .user-action-form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -715,7 +730,7 @@ input[type="file"] {
 .error-message {
     background: rgba(255, 55, 95, 0.15);
     border: 1px solid var(--secondary);
-    color: #ff6b8a;
+    color: var(--danger);
     padding: 1rem 1.2rem;
     border-radius: 12px;
     font-size: 0.9rem;
@@ -812,7 +827,7 @@ input[type="file"] {
     height: 20px;
     width: 200px;
     border-radius: 4px;
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    background: linear-gradient(90deg, #e8d5f5 0%, #a78de8 25%, #6c63d4 50%, #3a8fc4 75%, #1dd4b4 100%);
 }
 
 .legend-labels {
@@ -935,4 +950,54 @@ input[type="file"] {
 .file-drop.dragover {
     border-color: var(--primary);
     background: rgba(145, 200, 255, 0.08);
+}
+
+.section-header{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.delete-buttons{
+    display: flex;
+    gap: 1rem;
+}
+
+.delete-buttons button{
+    width: 10rem;
+    height: 3rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 60%;
+    gap: 0.75rem;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    opacity: 0.6;
+}
+
+.empty-state h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    opacity: 0.6;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 300px;
+    opacity: 0.6;
+}
+
+.empty-state form {
+    margin-top: 2rem;
 }

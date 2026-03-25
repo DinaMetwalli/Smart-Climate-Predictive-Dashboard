@@ -39,7 +39,7 @@ def analyse_user_upload():
         session["predictions"] = predictions
         
         user_id = session['user_id']
-        history_service.save_custom_analysis_results(user_id, analysis_name, filenames)
+        history_service.save_custom_analysis_results(user_id, analysis_name, filenames, predictions)
 
         return render_template("index.html")
     
@@ -67,7 +67,7 @@ def get_predictions(month_index):
 
     predictions = session.get("predictions")
 
-    current_time = datetime.datetime.today()
+    current_time = datetime.datetime.today() 
     date = current_time + relativedelta(months=month_index)
     date = date.strftime('%Y-%m')
 

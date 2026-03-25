@@ -49,36 +49,76 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <h2 class="section-title">Available Analyses</h2>
+            
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
 
-            <table class="analysis-table">
-                
-                <thead>
-                    <tr>
-                        <th>Analysis Name</th>
-                        <th>Created On</th>
-                        <th></th>
-                    </tr>
-                </thead>
+            <div class="section-header">
+                <div>
+                    <h2>Available Analyses</h2>
+                </div>
+                <div class="delete-buttons">
+                    <button type="submit" class="btn-submit" form="delete-form">
+                        <span>Delete Selected Analyses</span>
+                    </button>
+                    <form action="/api/user/analysis/history/delete/all" method="POST" enctype="multipart/form-data">
+                        <button class="btn-submit danger-button" type="submit">
+                            <span>Delete All Entries</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-                <tbody>
-                    {% for analysis in analyses %}
-                    <tr>
-                        <td>{{ analysis.name }}</td>
-                        <td>{{ analysis.created_at }}</td>
-                        <td style="text-align: right;">
-                            <a href="#">
-                                <button class="btn-submit">
-                                    <span>Display →</span>
-                                </button>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+            {% if analyses %}
+            <form id="delete-form" action="/api/user/analysis/history/delete" method="POST" enctype="multipart/form-data"></form>
+                <table class="analysis-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Analysis Name</th>
+                            <th>Created On</th>
+                            <th></th>
+                        </tr>
+                    </thead>
 
-            </table>
+                    <tbody>
+                        {% for analysis in analyses %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="analysis_id_select" value="{{ analysis.id }}">
+                            </td>
+                            <td>{{ analysis.name }}</td>
+                            <td>{{ analysis.created_at }}</td>
+                            <td style="text-align: right;">
+                                <form action="/api/user/analysis/history/select" method="GET" enctype="multipart/form-data">
+                                    <input type="hidden" name="analysis_id" value="{{ analysis.id }}">
+                                    <button class="btn-submit">
+                                        <span>Display →</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+            {% else %}
+            <div class="empty-state">
+                <span class="empty-state-icon">
+                    <i class="fa-solid fa-microscope"></i>
+                </span>
+                <h3>No analyses yet</h3>
+                <p>Run a custom analysis from the Upload page and save it to see your entries here.</p>
+                <form action="/upload" method="GET">
+                    <button class="btn-submit" type="submit" style="width: auto; padding: 0.5rem 1.5rem;">
+                        <span>Go to Upload →</span>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
         </main>
+        
         <!-- Right Panel For Upload Metrics -->
         <div class="right-panel">
             {% block content %}
