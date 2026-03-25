@@ -23,7 +23,7 @@ class AnalysisService():
             predictions = self.model.predict_future(region_df=processed_ds,
                                                     region=region,
                                                     months_to_test=60,
-                                                    test_future=False)
+                                                    test_future=True)
             
             combined_preds[region] = predictions
 
