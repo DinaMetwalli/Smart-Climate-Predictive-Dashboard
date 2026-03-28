@@ -1,12 +1,12 @@
-async function loadPredictions(monthIndex) {
+async function loadPredictions(monthIndex, sliderDate) {
     try {
         console.log(`Fetching month ${monthIndex}...`);
-        
+
         const response = await fetch(`/analysis/predictions/${monthIndex}`);
         const data = await response.json();
-        
-        console.log('Prediction data:', data);
-        
+
+        if (sliderDate) sliderDate.textContent = `Month: ${data.date}`;
+
         displayMap(data.continents);
     } catch (error) {
         console.error('error:', error);
@@ -81,9 +81,8 @@ function displayMap(continents) {
         text: text,
         hoverinfo: 'text',
         reversescale: false,
-        zmin: -4,
-        zmax: 4,
-        // showscale: false,
+        zmin: -3,
+        zmax: 3,
         colorscale: [
             [0,    '#e8d5f5'],
             [0.25, '#a78de8'],
@@ -91,7 +90,7 @@ function displayMap(continents) {
             [0.75, '#3a8fc4'],
             [1,    '#1dd4b4']
         ],
-        showscale: false // Hide plotly scale to show custom one.
+        showscale: true
     }];
     
     // Configure the layout
@@ -117,15 +116,31 @@ function displayMap(continents) {
     };
     
     // Render the map
-    Plotly.newPlot('world-map', mapData, layout, {
-        responsive: true,
-        displayModeBar: false
-    });
+    if (document.getElementById('world-map').data) {
+        // Update plot if it already exists
+        Plotly.react('world-map', mapData, layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    } else {
+        // Create new plot on first render
+        Plotly.newPlot('world-map', mapData, layout, {
+            responsive: true,
+            displayModeBar: false
+        });
+    }
     
     console.log('Map rendered! :)');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Starting...');
-    loadPredictions(3); // Manually feed in month-index for testing map display. Will change later to actual data
+    const slider = document.getElementById('monthSlider');
+    const sliderDate = document.getElementById('slider-date');
+
+    slider.addEventListener('input', function() {
+        loadPredictions(parseInt(slider.value), sliderDate);
+    });
+
+    // Load month 0 on page load
+    loadPredictions(0, sliderDate);
 });

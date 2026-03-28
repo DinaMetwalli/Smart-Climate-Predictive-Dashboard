@@ -56,22 +56,23 @@
             <div class="output-window">
                 <h2 class="output-header">Analysis Output</h2>
                 <div class="output-content">
-                    <div id="map-container">
-                        <div id="world-map"></div>
-                        <div class="legend">
-                            <div class="legend-title">Temperature Anomaly (°C)</div>
-                            <div class="legend-gradient"></div>
-                            <div class="legend-labels">
-                                <span>-2.0</span>
-                                <span>-1.0</span>
-                                <span>-0.5</span>
-                                <span>0.0</span>
-                                <span>0.5</span>
-                                <span>1.0</span>
-                                <span>2.0</span>
-                            </div>
-                        </div>
+                    <div id="world-map"></div>
+                    <div class="slider-date">
+                        <p id="slider-date">Month: --</p>
                     </div>
+                </div>
+            </div>
+
+            <div class="slidecontainer">
+                <input type="range" min="0" max="59" value="0" class="slider" id="monthSlider">
+                <div class="slider-ticks">
+                    <span>0</span>
+                    <span>10</span>
+                    <span>20</span>
+                    <span>30</span>
+                    <span>40</span>
+                    <span>50</span>
+                    <span>59</span>
                 </div>
             </div>
 
@@ -94,7 +95,7 @@
                 </form>
 
                 {% if session.username %}
-                <form action="/history" method="GET" enctype="multipart/form-data">
+                <form method="GET" action="/api/user/analysis/history" enctype="multipart/form-data">
                     <button class="action-button">
                         <div class="button-icon"><i class="fa-solid fa-book-bookmark"></i></div>
                         <div class="button-label">Run Previous Analysis</div>
@@ -154,6 +155,11 @@
             {% endblock %}
 
             <div class="panel-section">
+                <h3 class="panel-title">Analysis</h3>
+                <div class="info-card">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">None</div>
+                </div>
                 <h3 class="panel-title">Upload Info</h3>
                 <div class="info-card">
                     <div class="info-label">Files Selected</div>
@@ -170,17 +176,8 @@
             </div>
 
             <div class="panel-section">
-                <h3 class="panel-title">Recent Activity</h3>
-                <div class="info-card">
-                    <div class="info-label">Last Upload</div>
-                    <div class="info-value">Never</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-label">Analyses Run</div>
-                    <div class="info-value">0</div>
-                </div>
                 <div class="user-action-form" style="width: 210%;">
-                    <form action="/login" method="GET" enctype="multipart/form-data">
+                    <form action="/charts" method="GET" enctype="multipart/form-data">
                         <button type="submit" class="btn-submit">
                             <span>Check Analysis Charts →</span>
                         </button>
