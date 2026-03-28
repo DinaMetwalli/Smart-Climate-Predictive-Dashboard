@@ -72,37 +72,36 @@
 
             {% if analyses %}
             <form id="delete-form" action="/api/user/analysis/history/delete" method="POST" enctype="multipart/form-data"></form>
-                <table class="analysis-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Analysis Name</th>
-                            <th>Created On</th>
-                            <th></th>
-                        </tr>
-                    </thead>
+            <table class="analysis-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Analysis Name</th>
+                        <th>Created On</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        {% for analysis in analyses %}
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="analysis_id_select" value="{{ analysis.id }}">
-                            </td>
-                            <td>{{ analysis.name }}</td>
-                            <td>{{ analysis.created_at }}</td>
-                            <td style="text-align: right;">
-                                <form action="/api/user/analysis/history/select" method="GET" enctype="multipart/form-data">
-                                    <input type="hidden" name="analysis_id" value="{{ analysis.id }}">
-                                    <button class="btn-submit">
-                                        <span>Display →</span>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </form>
+                <tbody>
+                    {% for analysis in analyses %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="analysis_id_select" value="{{ analysis.id }}" form="delete-form">
+                        </td>
+                        <td>{{ analysis.name }}</td>
+                        <td>{{ analysis.created_at }}</td>
+                        <td style="text-align: right;">
+                            <form action="/api/user/analysis/history/select" method="GET" enctype="multipart/form-data">
+                                <input type="hidden" name="analysis_id" value="{{ analysis.id }}">
+                                <button class="btn-submit">
+                                    <span>Display →</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% else %}
             <div class="empty-state">
                 <span class="empty-state-icon">
@@ -152,7 +151,7 @@
                         Please login or register to save custom analysis results and view your analysis upload history.
                 </div>
                 <form action="/login" method="GET" enctype="multipart/form-data">
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" style="width: 100% !important;">
                         <span>Login</span>
                     </button>
                 </form>
@@ -161,6 +160,11 @@
             {% endblock %}
 
             <div class="panel-section">
+                <h3 class="panel-title">Analysis</h3>
+                <div class="info-card">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">None</div>
+                </div>
                 <h3 class="panel-title">Upload Info</h3>
                 <div class="info-card">
                     <div class="info-label">Files Selected</div>
@@ -177,17 +181,8 @@
             </div>
 
             <div class="panel-section">
-                <h3 class="panel-title">Recent Activity</h3>
-                <div class="info-card">
-                    <div class="info-label">Last Upload</div>
-                    <div class="info-value">Never</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-label">Analyses Run</div>
-                    <div class="info-value">0</div>
-                </div>
                 <div class="user-action-form" style="width: 210%;">
-                    <form action="/login" method="GET" enctype="multipart/form-data">
+                    <form action="/charts" method="GET" enctype="multipart/form-data">
                         <button type="submit" class="btn-submit">
                             <span>Check Analysis Charts →</span>
                         </button>
