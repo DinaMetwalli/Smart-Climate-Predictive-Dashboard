@@ -82,7 +82,7 @@ function displayMap(continents) {
         hoverinfo: 'text',
         reversescale: false,
         zmin: -3,
-        zmax: 3,
+        zmax: 5,
         colorscale: [
             [0,    '#e8d5f5'],
             [0.25, '#a78de8'],
@@ -143,4 +143,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load month 0 on page load
     loadPredictions(0, sliderDate);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('loading-overlay');
+    const liveForm = document.querySelector('form[action="/analysis/live"]');
+
+    liveForm.addEventListener('submit', function () {
+        overlay.classList.add('active');
+    });
 });
