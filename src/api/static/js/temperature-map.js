@@ -19,45 +19,38 @@ function displayMap(continents) {
     const values = [];
     const text = [];
     
-    // Map all country names to continents... Will be changed later?
+    // Map ISO-3 codes to continents
     const continentMapping = {
         "Africa": [
-            "Algeria","Angola","Benin","Botswana","Burkina Faso","Burundi","Cabo Verde","Cameroon",
-            "Central African Republic","Chad","Comoros","Democratic Republic of the Congo",
-            "Republic of the Congo","Djibouti","Egypt","Equatorial Guinea","Eritrea","Eswatini",
-            "Ethiopia","Gabon","Gambia","Ghana","Guinea","Guinea-Bissau","Ivory Coast","Kenya",
-            "Lesotho","Liberia","Libya","Madagascar","Malawi","Mali","Mauritania","Mauritius",
-            "Morocco","Mozambique","Namibia","Niger","Nigeria","Rwanda","Sao Tome and Principe",
-            "Senegal","Seychelles","Sierra Leone","Somalia","South Africa","South Sudan","Sudan",
-            "Tanzania","Togo","Tunisia","Uganda","Zambia","Zimbabwe"
-        ], "Asia": [
-            "Afghanistan","Armenia","Azerbaijan","Bahrain","Bangladesh","Bhutan","Brunei",
-            "Cambodia","China","Cyprus","Georgia","India","Indonesia","Iran","Iraq","Palestine",
-            "Japan","Jordan","Kazakhstan","Kuwait","Kyrgyzstan","Laos","Lebanon","Malaysia",
-            "Maldives","Mongolia","Myanmar","Nepal","North Korea","Oman","Pakistan","Palestine",
-            "Philippines","Qatar","Saudi Arabia","Singapore","South Korea","Sri Lanka","Syria",
-            "Taiwan","Tajikistan","Thailand","Timor-Leste","Turkey","Turkmenistan",
-            "United Arab Emirates","Uzbekistan","Vietnam","Yemen"
-        ], "Europe": [
-            "Albania","Andorra","Austria","Belarus","Belgium","Bosnia and Herzegovina","Bulgaria",
-            "Croatia","Czechia","Denmark","Estonia","Finland","France","Germany","Greece",
-            "Hungary","Iceland","Ireland","Italy","Kosovo","Latvia","Liechtenstein","Lithuania",
-            "Luxembourg","Malta","Moldova","Monaco","Montenegro","Netherlands","North Macedonia",
-            "Norway","Poland","Portugal","Romania","Russia","San Marino","Serbia","Slovakia",
-            "Slovenia","Spain","Sweden","Switzerland","Ukraine","United Kingdom","Vatican City"
-        ], "North America": [
-            "Antigua and Barbuda","Bahamas","Barbados","Belize","Canada","Costa Rica","Cuba",
-            "Dominica","Dominican Republic","El Salvador","Grenada","Guatemala","Haiti",
-            "Honduras","Jamaica","Mexico","Nicaragua","Panama","Saint Kitts and Nevis",
-            "Saint Lucia","Saint Vincent and the Grenadines","Trinidad and Tobago",
-            "United States"
-        ], "South America": [
-            "Argentina","Bolivia","Brazil","Chile","Colombia","Ecuador","Guyana","Paraguay",
-            "Peru","Suriname","Uruguay","Venezuela"
-        ], "Oceania": [
-            "Australia","Fiji","Kiribati","Marshall Islands","Micronesia","Nauru","New Zealand",
-            "Palau","Papua New Guinea","Samoa","Solomon Islands","Tonga","Tuvalu","Vanuatu"
-        ], "Antarctica": ["Antarctica"]
+            "DZA","AGO","BEN","BWA","BFA","BDI","CPV","CMR","CAF","TCD","COM","COD","COG",
+            "DJI","EGY","GNQ","ERI","SWZ","ETH","GAB","GMB","GHA","GIN","GNB","CIV","KEN",
+            "LSO","LBR","LBY","MDG","MWI","MLI","MRT","MUS","MAR","MOZ","NAM","NER","NGA",
+            "RWA","STP","SEN","SYC","SLE","SOM","ZAF","SSD","SDN","TZA","TGO","TUN","UGA",
+            "ZMB","ZWE","ESH"
+        ],
+        "Asia": [
+            "AFG","ARM","AZE","BHR","BGD","BTN","BRN","KHM","CHN","CYP","GEO","IND","IDN",
+            "IRN","IRQ","PSE","JPN","JOR","KAZ","KWT","KGZ","LAO","LBN","MYS","MDV","MNG",
+            "MMR","NPL","PRK","OMN","PAK","PHL","QAT","SAU","SGP","KOR","LKA","SYR","TWN",
+            "TJK","THA","TLS","TUR","TKM","ARE","UZB","VNM","YEM"
+        ],
+        "Europe": [
+            "ALB","AND","AUT","BLR","BEL","BIH","BGR","HRV","CZE","DNK","EST","FIN","FRA",
+            "DEU","GRC","HUN","ISL","IRL","ITA","XKX","LVA","LIE","LTU","LUX","MLT","MDA",
+            "MCO","MNE","NLD","MKD","NOR","POL","PRT","ROU","RUS","SMR","SRB","SVK","SVN",
+            "ESP","SWE","CHE","UKR","GBR","VAT"
+        ],
+        "North America": [
+            "ATG","BHS","BRB","BLZ","CAN","CRI","CUB","DMA","DOM","SLV","GRD","GTM","HTI",
+            "HND","JAM","MEX","NIC","PAN","KNA","LCA","VCT","TTO","USA","GRL"
+        ],
+        "South America": [
+            "ARG","BOL","BRA","CHL","COL","ECU","GUY","PRY","PER","SUR","URY","VEN","GUF"
+        ],
+        "Oceania": [
+            "AUS","FJI","KIR","MHL","FSM","NRU","NZL","PLW","PNG","WSM","SLB","TON","TUV","VUT"
+        ],
+        "Antarctica": ["ATA"]
     }
     
     // Assign the continent values to each of their countries
@@ -75,7 +68,7 @@ function displayMap(continents) {
     // Create the plotly map data
     const mapData = [{
         type: 'choropleth',
-        locationmode: 'country names',
+        locationmode: 'ISO-3',
         locations: locations,
         z: values,
         text: text,
