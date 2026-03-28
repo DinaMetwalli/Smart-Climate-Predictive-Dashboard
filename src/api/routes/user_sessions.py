@@ -76,6 +76,8 @@ def login_user():
         user = user_manager.login_user(username, password)
         if user:
             
+            session.clear()
+            
             # Store user info in session
             session['user_id'] = user['id']
             session['username'] = user['username']

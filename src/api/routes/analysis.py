@@ -1,7 +1,6 @@
-from flask import Blueprint, request, jsonify, session, render_template
+from flask import Blueprint, request, jsonify, session, render_template, redirect
 from flask import current_app
 import datetime
-import uuid
 from dateutil.relativedelta import relativedelta
 
 from .utils.auth import authorize
@@ -35,13 +34,15 @@ def analyse_user_upload():
     history_service = current_app.config["HISTORY-SERVICE"]
 
     try:
-        predictions = service.run_custom_analysis(files, filenames)
+        predictions, stats, errors = service.run_custom_analysis(files, filenames)
         session["predictions"] = predictions
+        session["stats"] = stats
+        session["errors"] = errors
         
         user_id = session['user_id']
         history_service.save_custom_analysis_results(user_id, analysis_name, filenames, predictions)
 
-        return render_template("index.html")
+        return redirect("/")
     
     except Exception as e:
         print(str(e))
@@ -54,10 +55,12 @@ def analyse_live_request():
     service = current_app.config["ANALYSIS-SERVICE"]
 
     try:
-        predictions = service.run_live_analysis()
+        predictions, stats, errors = service.run_live_analysis()
         session["predictions"] = predictions
+        session["stats"] = stats
+        session["errors"] = errors
         
-        return render_template("index.html")
+        return redirect("/")
     
     except Exception as e:
         return render_template("index.html", error=str(e))

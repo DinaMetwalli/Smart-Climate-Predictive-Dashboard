@@ -7,6 +7,7 @@ from .routes.pages import pages_bp
 from .routes.analysis import analysis_bp
 from .routes.user_sessions import user_bp
 from .routes.analysis_history import user_history_bp
+from .routes.analysis_charts import charts_bp
 from ..utils.database_config import db
 
 from .services.analysis_service import AnalysisService
@@ -50,5 +51,6 @@ def main():
     app.register_blueprint(analysis_bp, url_prefix="/analysis")
     app.register_blueprint(user_bp, url_prefix="/api")
     app.register_blueprint(user_history_bp, url_prefix="/api")
+    app.register_blueprint(charts_bp, url_prefix="/api")
 
     return app

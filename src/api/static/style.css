@@ -3,11 +3,11 @@
     --primary-dark: #076d8b;
     --secondary: #8957e1;
     --accent: #32d7ae;
-    --bg-dark: #0D1117;
-    --bg-darker: #010409;
-    --bg-light: #181a1f;
-    --bg-card: #161B22;
-    --bg-card-disabled: #111316;
+    --bg-dark: #121820;
+    --bg-darker: #020813;
+    --bg-light: #24272e;
+    --bg-card: #181d25;
+    --bg-card-disabled: #2a2f36;
     --border: #30363D;
     --title-color: #00cc99;
     --text-primary: #F0F6FC;
@@ -134,9 +134,9 @@ body {
 .slider-date {
     width: 100%;
     text-align: center;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-size: 0.95rem;
-    margin-top: 0.5rem;
+    margin-top: 2rem;
 }
 
 /* -- Layout Grid -- */
@@ -197,6 +197,16 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.charts {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.stats-charts {
+    flex: 1;
 }
 
 /* -- Left Sidebar -- */
