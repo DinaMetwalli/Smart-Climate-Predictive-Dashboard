@@ -134,21 +134,34 @@
                 <h3 class="panel-title">Analysis</h3>
                 <div class="info-card">
                     <div class="info-label">Type</div>
-                    <div class="info-value">None</div>
+                    <div class="info-value">
+                        {% if session.analysis_meta %}
+                            {{ session.analysis_meta.type | capitalize }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </div>
                 </div>
+                
+                {% if session.analysis_meta and session.analysis_meta.type == "custom" %}
                 <h3 class="panel-title">Upload Info</h3>
                 <div class="info-card">
-                    <div class="info-label">Files Selected</div>
-                    <div class="info-value" id="fileCount">0</div>
-                </div>
-                <div class="info-card">
                     <div class="info-label">Analysis Name</div>
-                    <div class="info-value" id="analysisNameDisplay">Not set</div>
+                    <div class="info-value">{{ session.analysis_meta.name }}</div>
                 </div>
                 <div class="info-card">
-                    <div class="info-label">Total Size</div>
-                    <div class="info-value" id="totalSize">0 KB</div>
+                    <div class="info-label">Number of Files Uploaded</div>
+                    <div class="info-value">{{ session.analysis_meta.file_count }}</div>
                 </div>
+                <div class="info-card">
+                    <div class="info-label">Filenames</div>
+                    <div class="info-value">
+                        {% for filename in session.analysis_meta.filenames %}
+                            <div>{{ filename }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

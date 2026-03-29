@@ -31,23 +31,52 @@ def analyse_user_upload():
         filenames.append(file.filename)
     
     service = current_app.config["ANALYSIS-SERVICE"]
-    history_service = current_app.config["HISTORY-SERVICE"]
 
     try:
         predictions, stats, errors = service.run_custom_analysis(files, filenames)
         session["predictions"] = predictions
         session["stats"] = stats
         session["errors"] = errors
-        
-        user_id = session['user_id']
-        history_service.save_custom_analysis_results(user_id, analysis_name, filenames, predictions)
+        session["analysis_meta"] = {
+            "type": "custom",
+            "name": analysis_name,
+            "filenames": filenames,
+            "file_count": len(filenames),
+            "saved": False,
+        }
+
+        saved = session["analysis_meta"]["saved"]
+        print(f"saved analysis -> {saved}")
 
         return redirect("/")
     
     except Exception as e:
         print(str(e))
         return render_template("upload.html", error=str(e))
+
+@analysis_bp.route("/custom/save", methods=["POST"])
+@authorize
+def save_custom_analysis_results():
     
+    try:
+        user_id = session["user_id"]
+        analysis_meta = session["analysis_meta"]
+        analysis_name = analysis_meta["name"]
+        filenames = analysis_meta["filenames"]
+        predictions = session["predictions"]
+
+        history_service = current_app.config["HISTORY-SERVICE"]
+        history_service.save_custom_analysis_results(user_id, analysis_name, filenames, predictions)
+
+        meta = session["analysis_meta"]
+        meta["saved"] = True
+        session["analysis_meta"] = meta
+
+        return redirect("/api/user/analysis/history")
+    except Exception as e:
+        print(str(e))
+        return render_template("index.html", error=str(e))
+
 @analysis_bp.route("/live", methods=["GET"])
 def analyse_live_request():
     print("User requested live analysis.")
@@ -59,6 +88,9 @@ def analyse_live_request():
         session["predictions"] = predictions
         session["stats"] = stats
         session["errors"] = errors
+        session["analysis_meta"] = {
+            "type": "live",
+        }
         
         return redirect("/")
     

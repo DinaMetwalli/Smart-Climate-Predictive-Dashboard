@@ -150,7 +150,7 @@
                         Please login or register to save custom analysis results and view your analysis upload history.
                 </div>
                 <form action="/login" method="GET" enctype="multipart/form-data">
-                    <button type="submit" class="btn-submit">
+                    <button type="submit" class="btn-submit" style="width: 100% !important;">
                         <span>Login</span>
                     </button>
                 </form>
@@ -159,6 +159,11 @@
             {% endblock %}
 
             <div class="panel-section">
+                <h3 class="panel-title">Analysis</h3>
+                <div class="info-card">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">None</div>
+                </div>
                 <h3 class="panel-title">Upload Info</h3>
                 <div class="info-card">
                     <div class="info-label">Files Selected</div>
@@ -175,17 +180,8 @@
             </div>
 
             <div class="panel-section">
-                <h3 class="panel-title">Recent Activity</h3>
-                <div class="info-card">
-                    <div class="info-label">Last Upload</div>
-                    <div class="info-value">Never</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-label">Analyses Run</div>
-                    <div class="info-value">0</div>
-                </div>
                 <div class="user-action-form" style="width: 210%;">
-                    <form action="/login" method="GET" enctype="multipart/form-data">
+                    <form action="/charts" method="GET" enctype="multipart/form-data">
                         <button type="submit" class="btn-submit">
                             <span>Check Analysis Charts →</span>
                         </button>

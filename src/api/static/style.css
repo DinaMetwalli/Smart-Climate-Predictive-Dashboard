@@ -24,6 +24,11 @@
     --shadow: rgba(0, 0, 0, 0.4);
     --danger: #ff6b6e;
     --danger-dark: #d54040;
+    --save: #ffdbc8;
+    --save-accent: #d374c9;
+    --save-text: #391b2a;
+    --save-shadow: #673d6c;
+    --save-shine: #fffae5;
     --font: 'Comfortaa';
 }
 
@@ -435,7 +440,7 @@ body {
     transform: rotate(10deg) scale(1.1);
 }
 
-.disabled-button {
+.btn-disabled {
     aspect-ratio: 1;
     background: var(--bg-card);
     border: 2px solid var(--border);
@@ -781,6 +786,7 @@ input[type="file"] {
     z-index: 1;
 }
 
+/* -- Danger Button --*/
 .danger-button {
     background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
 }
@@ -792,6 +798,87 @@ input[type="file"] {
 .danger-button:hover {
     background: linear-gradient(135deg, var(--danger-dark) 0%, var(--danger) 100%) !important;
     box-shadow: 0 10px 30px rgba(255, 10, 43, 0.4) !important;
+}
+
+/* -- Save Anaysis Button --*/
+@keyframes TransitionBackground {
+    0% {
+        background-position: 1% 0%;
+    }
+    50% {
+        background-position: 99% 100%;
+    }
+    100% {
+        background-position: 1% 0%;
+    }
+}
+
+.btn-save {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    height: 60px;
+    overflow: hidden;
+    color: var(--save-text);
+    background: linear-gradient(135deg, var(--save) 0%, var(--save-accent) 100%);
+    background-size: 400% 400%;
+    animation: TransitionBackground 5s ease infinite;
+    transition: 0.2s;
+}
+
+.btn-save::before {
+    background: linear-gradient(135deg, var(--save-accent) 0%, var(--save) 100%) !important;
+    color: var(--save-text);
+}
+
+.btn-save:hover {
+    background: linear-gradient(135deg, var(--save-accent) 0%, var(--save) 100%) !important;
+    box-shadow: none;
+    color: var(--save-text);
+}
+
+@keyframes rotateBorderGlow {
+    from {transform: translate(-50%, -50%) rotate(0deg);}
+    to {transform: translate(-50%, -50%) rotate(360deg);}
+}
+
+.border-mask {
+    position: relative;
+    border-radius: 12px;
+    padding: 1px;
+    overflow: hidden;
+    margin-top: 1rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.border-mask:hover {
+    box-shadow: 0 10px 30px var(--save-shadow);
+}
+
+.border-mask-glow {
+    background: conic-gradient(from 0deg, transparent 0%, var(--save-shine) 10%, transparent 20%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 500px;
+    transform: translate(-50%, -50%);
+    animation: rotateBorderGlow 3s linear infinite;
+    z-index: 0;
+}
+
+.btn-save-disabled {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--font), sans-serif;
+    font-weight: 700;
+    overflow: hidden;
+    margin-top: 1rem;
+    height: 63px;
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--text-primary);
+    background: var(--bg-dark);
 }
 
 .user-action-form {

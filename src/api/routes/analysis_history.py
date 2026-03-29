@@ -39,6 +39,10 @@ def analysis_prediction_values():
     try:
         predictions = history_service.get_prediction_values(analysis_id)
         session["predictions"] = dict(predictions)
+
+        meta = session["analysis_meta"]
+        meta["saved"] = True
+        session["analysis_meta"] = meta
         
         return render_template("index.html")
     
