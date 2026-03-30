@@ -37,12 +37,15 @@ def analysis_prediction_values():
     history_service = current_app.config["HISTORY-SERVICE"]
 
     try:
-        predictions = history_service.get_prediction_values(analysis_id)
+        predictions, stats, errors = history_service.get_analysis_values(analysis_id)
         session["predictions"] = dict(predictions)
+        session["stats"] = dict(stats)
+        session["errors"] = dict(errors)
 
-        meta = session["analysis_meta"]
-        meta["saved"] = True
-        session["analysis_meta"] = meta
+        meta = session.get("analysis_meta")
+        if meta:
+            meta["saved"] = True
+            session["analysis_meta"] = meta
         
         return render_template("index.html")
     

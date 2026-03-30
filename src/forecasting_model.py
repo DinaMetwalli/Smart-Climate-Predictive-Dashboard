@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn.preprocessing import MinMaxScaler
 from sktime.forecasting.model_selection import SlidingWindowSplitter
-from scipy.stats import spearmanr, kendalltau
 import os
 
 class ClimateForecastingModel():
@@ -62,7 +61,7 @@ class ClimateForecastingModel():
             
         print("→ Scalers saved to 'scalers.pkl'.")
 
-    def __encode_cyclical_data(self, dataset) -> np.ndarray:
+    def __encode_cyclical_data(self, dataset: pd.DataFrame) -> np.ndarray:
         """
         Add the year and month for contextualisation of different time periods
         This is done to help the model pick up on the upward-trend of anomaly increase and diff seasons
@@ -358,7 +357,7 @@ class ClimateForecastingModel():
         plt.tight_layout()
         plt.show()
 
-    def get_horizon_errors(self, actuals, preds):
+    def get_horizon_errors(self, actuals: torch.tensor, preds: torch.tensor) -> list:
         """
         Calculates the error at each step of the forecast.
         """
@@ -377,7 +376,7 @@ class ClimateForecastingModel():
         
         return horizon_errors
 
-    def get_summary_stats(self, y_true, y_pred) -> dict:
+    def get_summary_stats(self, y_true: torch.tensor, y_pred: torch.tensor) -> dict:
         """Returns the predictions RMSE, bias, and correlation for the dataset passed"""
         if torch.is_tensor(y_true): y_true = y_true.numpy()
         if torch.is_tensor(y_pred): y_pred = y_pred.numpy()
@@ -392,14 +391,10 @@ class ClimateForecastingModel():
         mean_bias = np.mean(errors)
         
         pearson_corr = np.corrcoef(y_true, y_pred)[0, 1]
-        spearman_corr, _ = spearmanr(y_true, y_pred)
-        kendall_corr, _  = kendalltau(y_true, y_pred)
 
         stats['rmse'] = float(rmse)
         stats['mean_bias'] = float(mean_bias)
         stats['pearson_corr'] = float(pearson_corr)
-        stats['spearman_corr'] = float(spearman_corr)
-        stats['kendall_corr'] = float(kendall_corr)
 
         return stats
     

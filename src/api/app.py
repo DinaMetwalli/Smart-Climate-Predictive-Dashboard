@@ -14,6 +14,8 @@ from .services.analysis_service import AnalysisService
 from .services.user_manager_service import UserManagerService
 from .services.analysis_history_service import AnalysisHistoryService
 from src.forecasting_model import ClimateForecastingModel
+from data.preparation.data_loader import DataLoader
+from data.preparation.custom_data_retriever import CustomDatasetRetriever
 
 import os
 
@@ -33,15 +35,17 @@ def main():
     model_path = MODELS_DIR / "regional_climate_lstm.pth"
     scaler_path = MODELS_DIR / "scaler.pkl"
 
-    model = ClimateForecastingModel(seq_len=60, forecast_num=60, model_file=model_path, scaler_file=scaler_path)
-    analysis_service = AnalysisService(model)
+    model = ClimateForecastingModel(seq_len=120, forecast_num=60, model_file=model_path, scaler_file=scaler_path)
+    data_loader = DataLoader()
+    custom_retriever = CustomDatasetRetriever()
+    analysis_service = AnalysisService(model, data_loader, custom_retriever)
     user_manager = UserManagerService()
     analysis_history_service = AnalysisHistoryService()
 
     app.config["MODEL"] = model
     app.config["ANALYSIS-SERVICE"] = analysis_service
-    app.config["USER-MANAGER"] = user_manager
     app.config["HISTORY-SERVICE"] = analysis_history_service
+    app.config["USER-MANAGER"] = user_manager
     app.config["SESSION_TYPE"] = "filesystem"
     app.config["SESSION_FILE_DIR"] = "./flask_sessions"
     Session(app)

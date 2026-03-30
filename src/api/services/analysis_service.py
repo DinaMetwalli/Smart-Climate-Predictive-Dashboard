@@ -1,15 +1,16 @@
-import pandas as pd
-
 from data.preparation.custom_data_retriever import CustomDatasetRetriever
 from data.preparation.data_loader import DataLoader
 from src.forecasting_model import ClimateForecastingModel
 
+import datetime
+from dateutil.relativedelta import relativedelta
+
 class AnalysisService():
-    def __init__(self, model: ClimateForecastingModel):
+    def __init__(self, model: ClimateForecastingModel, loader: DataLoader, custom_loader: CustomDatasetRetriever):
         print("Initialising Analysis Service...")
         self.model = model
-        self.loader = DataLoader()
-        self.custom_loader = CustomDatasetRetriever()
+        self.loader = loader
+        self.custom_loader = custom_loader
     
     def run_custom_analysis(self, custom_files: list, filenames: list) -> dict:
         datasets = self.custom_loader.load_dataset_from_file(custom_files,
@@ -61,3 +62,37 @@ class AnalysisService():
             combined_errors[region] = errors
         
         return combined_preds, combined_stats, combined_errors
+    
+    def get_analysis_results(self, month_index: int, predictions: dict) -> dict:
+        current_time = datetime.datetime.today() 
+        date = current_time + relativedelta(months=month_index)
+        date = date.strftime('%Y-%m')
+
+        continent_map = {
+            "North America": "northAmerica",
+            "South America": "southAmerica",
+            "Europe": "europe",
+            "Africa": "africa",
+            "Asia": "asia",
+            "Oceania": "oceania"
+        }
+
+        continents = {}
+
+        for display_name, key in continent_map.items():
+            if predictions:
+                preds_list = predictions.get(key)
+                if preds_list and len(preds_list) > month_index:
+                    continents[display_name] = preds_list[month_index]
+                else:
+                    continents[display_name] = None
+            else:
+                continents[display_name] = None
+
+        response = {
+            "month_index": month_index,
+            "date": date,
+            "continents": continents
+        }
+
+        return response

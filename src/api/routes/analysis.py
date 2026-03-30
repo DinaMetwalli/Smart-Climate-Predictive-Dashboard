@@ -1,7 +1,5 @@
 from flask import Blueprint, request, jsonify, session, render_template, redirect
 from flask import current_app
-import datetime
-from dateutil.relativedelta import relativedelta
 
 from .utils.auth import authorize
 
@@ -64,9 +62,16 @@ def save_custom_analysis_results():
         analysis_name = analysis_meta["name"]
         filenames = analysis_meta["filenames"]
         predictions = session["predictions"]
+        stats = session["stats"]
+        errors = session["errors"]
 
         history_service = current_app.config["HISTORY-SERVICE"]
-        history_service.save_custom_analysis_results(user_id, analysis_name, filenames, predictions)
+        history_service.save_custom_analysis_results(user_id,
+                                                     analysis_name,
+                                                     filenames,
+                                                     predictions,
+                                                     stats,
+                                                     errors)
 
         meta = session["analysis_meta"]
         meta["saved"] = True
@@ -100,37 +105,14 @@ def analyse_live_request():
 @analysis_bp.route('/predictions/<int:month_index>')
 def get_predictions(month_index):
 
+    service = current_app.config["ANALYSIS-SERVICE"]
+    
     predictions = session.get("predictions")
 
-    current_time = datetime.datetime.today() 
-    date = current_time + relativedelta(months=month_index)
-    date = date.strftime('%Y-%m')
-
-    continent_map = {
-        "North America": "northAmerica",
-        "South America": "southAmerica",
-        "Europe": "europe",
-        "Africa": "africa",
-        "Asia": "asia",
-        "Oceania": "oceania"
-    }
-
-    continents = {}
-
-    for display_name, key in continent_map.items():
-        if predictions:
-            preds_list = predictions.get(key)
-            if preds_list and len(preds_list) > month_index:
-                continents[display_name] = preds_list[month_index]
-            else:
-                continents[display_name] = None
-        else:
-            continents[display_name] = None
-
-    response = {
-        "month_index": month_index,
-        "date": date,
-        "continents": continents
-    }
+    try:
+        response = service.get_analysis_results(month_index, predictions)
+        return jsonify(response)
     
-    return jsonify(response)
+    except Exception as e:
+        print(str(e))
+        return render_template("index.html", error=str(e))

@@ -88,7 +88,7 @@ class CustomDatasetRetriever:
             
         return data
     
-    def validate_data_types(self, ds) -> None:
+    def validate_data_types(self, ds: pd.DataFrame) -> None:
         """
         Validates the data types of the file's fields to match those expected by the model.
         

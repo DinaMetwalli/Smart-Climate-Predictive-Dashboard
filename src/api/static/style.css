@@ -24,10 +24,10 @@
     --shadow: rgba(0, 0, 0, 0.4);
     --danger: #ff6b6e;
     --danger-dark: #d54040;
-    --save: #ffdbc8;
-    --save-accent: #d374c9;
-    --save-text: #391b2a;
-    --save-shadow: #673d6c;
+    --save: #c8ffea;
+    --save-accent: #e3a4f9;
+    --save-text: #1b3931;
+    --save-shadow: #3d6c61;
     --save-shine: #fffae5;
     --font: 'Comfortaa';
 }
@@ -822,8 +822,6 @@ input[type="file"] {
     color: var(--save-text);
     background: linear-gradient(135deg, var(--save) 0%, var(--save-accent) 100%);
     background-size: 400% 400%;
-    animation: TransitionBackground 5s ease infinite;
-    transition: 0.2s;
 }
 
 .btn-save::before {

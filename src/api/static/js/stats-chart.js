@@ -26,12 +26,12 @@ async function loadStatsCharts() {
  */
 function displayStatsChart(stats) {
     const continents = Object.keys(stats);
-    const metrics = ['rmse', 'mean_bias', 'correlation'];
+    const metrics = ['rmse', 'mean_bias', 'pearson_corr'];
     
     const colorMap = {
         'rmse': '#4ba5c9',
         'mean_bias': '#8957e1',
-        'correlation': '#32d7ae'
+        'pearson_corr': '#32d7ae'
     };
 
     const data = metrics.map(metric => ({
