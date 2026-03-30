@@ -1017,7 +1017,6 @@ input[type="file"] {
 .upload-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     justify-content: center;
     background-color: var(--bg-dark);
     width: 100%;

@@ -10,12 +10,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <style>
-        .btn-submit {
-            margin-top: 0;
-            width: 50%;
-        }
-    </style>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/stats-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/preds-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/error-chart.js') }}"></script>
 </head>
 
 <body>
@@ -31,11 +29,11 @@
                 <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
                 Analysis
             </a>
-            <a href="/upload" class="nav-item active">
+            <a href="/upload" class="nav-item">
                 <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
                 Upload
             </a>
-            <a href="/charts" class="nav-item">
+            <a href="/charts" class="nav-item active">
                 <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
                 Charts
             </a>
@@ -49,74 +47,84 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <h2 class="section-title">Upload Your Own Files</h2>
+            
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <div class="section-header">
+                <h2>{{ session.username }}'s Account</h2>
+            </div>
+
             <div class="upload-wrapper">
                 <div class="upload-info">
-                    <p>
-                        Use this page to upload your own files for analysis.
-                        Please keep in mind the following when selecting your files:
-                    </p>
-                    
-                    <ul>
-                        <li>Each file uploaded must contain the following columns: (Date, Anomaly, Region)</li>
-                        <li>The dates must be monthly, following the format YYYYMM.</li>
-                        <li>Each file can have only one continent inside for the region.</li>
-                        <li>The list of available continents is: ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']</li>
-                        <li>Continent names should go in the 'Region' column and follow the same structure as the list above.</li>
-                        <li>Accepted file types are CSV and NC.</li>
-                    </ul>
-                    <br>
-                    <p>
-                        If these conditions aren't met, your analysis won't be processed.
-                    </p>
+                    <h3 class="upload-title">Change Your Username</h3>
+                    <form method="POST" action="/api/user/update/username">
+                        <div class="form-group">
+                            <label class="form-label" for="username">New Username</label>
+                            <input
+                                class="form-input"
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your new username"
+                                required
+                                autofocus
+                            >
+                        </div>
+                        <button class="btn-submit" type="submit">
+                            <span>Update username</span>
+                        </button>
+                    </form>
                 </div>
 
-                <div class="upload-analysis">
-                    <h3 class="upload-title">Run New Analysis</h3>
-
-                    <form action="/analysis/custom" method="POST" enctype="multipart/form-data">
-                        
-                        <div class="analysis-field">
-                            <label for="analysisName">Analysis Name</label>
-                            <input 
-                                type="text"
-                                class="form-input"
-                                id="analysisName"
-                                name="analysisName"
-                                placeholder="Enter analysis name..."
-                                required
-                            >
-                        </div>
-
-                        <div class="file-drop">
+                <div class="upload-info">
+                    <h3 class="upload-title">Change Your Password</h3>
+                    <form method="POST" action="/api/user/update/password">
+                        <div class="form-group">
+                            <label class="form-label" for="password">Your Current Password</label>
                             <input
-                                type="file"
-                                id="files"
-                                name="file"
+                                class="form-input"
+                                type="password"
+                                id="curr-password"
+                                name="curr-password"
+                                placeholder="Enter your password"
                                 required
-                                multiple
+                                autocomplete="off"
                             >
-
-                            <label for="files" class="file-drop-label">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <p>Drag & Drop CSV files here</p>
-                                <span>or click to browse</span>
-                            </label>
-
-                            <div id="fileList" class="file-list">
-                                No files selected
-                            </div>
                         </div>
 
-                        <button type="submit" class="btn-submit">
-                            <span>Run Analysis</span>
+                        <div class="form-group">
+                            <label class="form-label" for="re-enter-password">New Password</label>
+                            <input
+                                class="form-input"
+                                type="password"
+                                id="new-password"
+                                name="new-password"
+                                placeholder="Enter your password again"
+                                required
+                                autocomplete="off"
+                            >
+                        </div>
+                        <button class="btn-submit" type="submit">
+                            <span>Update password</span>
                         </button>
+                    </form>
+                </div>
 
+                <div class="upload-info">
+                    <h3 class="upload-title">Delete Account</h3>
+                    <b>! Warning: this action will delete your account and all data associated with it. This cannot be undone !</b>
+                    <form action="/api/user/delete" method="POST" enctype="multipart/form-data">
+                        <button class="btn-submit danger-button" type="submit">
+                            <span>Delete Your Account</span>
+                        </button>
                     </form>
                 </div>
             </div>
+            
         </main>
-
+        
         <!-- Right Panel For Upload Metrics -->
         <div class="right-panel">
             {% block content %}
@@ -164,37 +172,36 @@
                 <h3 class="panel-title">Analysis</h3>
                 <div class="info-card">
                     <div class="info-label">Type</div>
-                    <div class="info-value">None</div>
+                    <div class="info-value">
+                        {% if session.analysis_meta %}
+                            {{ session.analysis_meta.type | capitalize }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </div>
                 </div>
+                
+                {% if session.analysis_meta and session.analysis_meta.type == "custom" %}
                 <h3 class="panel-title">Upload Info</h3>
                 <div class="info-card">
-                    <div class="info-label">Files Selected</div>
-                    <div class="info-value" id="fileCount">0</div>
-                </div>
-                <div class="info-card">
                     <div class="info-label">Analysis Name</div>
-                    <div class="info-value" id="analysisNameDisplay">Not set</div>
+                    <div class="info-value">{{ session.analysis_meta.name }}</div>
                 </div>
                 <div class="info-card">
-                    <div class="info-label">Total Size</div>
-                    <div class="info-value" id="totalSize">0 KB</div>
+                    <div class="info-label">Number of Files Uploaded</div>
+                    <div class="info-value">{{ session.analysis_meta.file_count }}</div>
                 </div>
-            </div>
-
-            <div class="panel-section">
-                <div class="user-action-form" style="width: 210%;">
-                    <form action="/charts" method="GET" enctype="multipart/form-data">
-                        <button type="submit" class="btn-submit">
-                            <span>Check Analysis Charts →</span>
-                        </button>
-                    </form>
+                <div class="info-card">
+                    <div class="info-label">Filenames</div>
+                    <div class="info-value">
+                        {% for filename in session.analysis_meta.filenames %}
+                            <div>{{ filename }}</div>
+                        {% endfor %}
+                    </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
-</div>
 </body>
-
-<script type="text/javascript" src="../static/js/file-uploads.js"></script>
-
 </html>

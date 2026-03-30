@@ -61,6 +61,32 @@ class UserManagerService:
         else:
             return False
         
+    def update_username(self, user_id: str, username: str) -> bool:
+        if self.validate_username(username):
+            db.execute_and_commit(
+                "UPDATE users SET username = %s WHERE id = %s",
+                username, user_id
+            )
+
+            return True
+        return False
+    
+    def update_password(self, user_id: str, curr_password: str, new_password: str) -> bool:
+        curr_password_hash = db.execute_and_fetch_one(
+            "SELECT password_hash FROM users WHERE id = %s",
+            user_id
+        )
+        print(curr_password_hash)
+        if check_password_hash(curr_password_hash[0], curr_password) and self.validate_password(new_password):
+            password_hash = generate_password_hash(new_password)
+            db.execute_and_commit(
+                "UPDATE users SET password_hash = %s WHERE id = %s",
+                password_hash, user_id
+            )
+
+            return True
+        return False
+        
     def delete_user(self, user_id:str) -> bool:
         deactivate = db.execute_and_commit(
             "UPDATE users SET active = %s WHERE id = %s",

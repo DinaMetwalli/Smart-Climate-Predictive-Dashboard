@@ -95,12 +95,14 @@
             {% if session.username %}
             <div class="panel-section">
                 <h3 class="panel-title">User Status</h3>
-                <div class="info-card" style="transform: translateX(0px);">
-                    <div class="status-badge">
-                        <span class="status-dot"></span>
-                        {{ session.username }}
+                <a href="api/users/me" style="text-decoration: none;">
+                    <div class="info-card" style="transform: translateX(0px);">
+                        <div class="status-badge">
+                            <span class="status-dot"></span>
+                            {{ session.username }}
+                        </div>
                     </div>
-                </div>
+                </a>
                 
                 <div class="user-action-form">
                     <form action="/login" method="GET" enctype="multipart/form-data">

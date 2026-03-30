@@ -29,3 +29,7 @@ def load_login_page():
 @pages_bp.route("/register", methods=["GET"])
 def load_register_page():
     return render_template("register.html")
+
+@pages_bp.route("/account", methods=["GET"])
+def load_user_account_page():
+    return render_template("user.html")
