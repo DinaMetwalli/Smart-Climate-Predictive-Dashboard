@@ -17,7 +17,6 @@ function displayMap(continents) {
     // Prepare data for Plotly
     const locations = [];
     const values = [];
-    const text = [];
     
     // Map ISO-3 codes to continents
     const continentMapping = {
@@ -31,14 +30,14 @@ function displayMap(continents) {
         "Asia": [
             "AFG","ARM","AZE","BHR","BGD","BTN","BRN","KHM","CHN","CYP","GEO","IND","IDN",
             "IRN","IRQ","PSE","JPN","JOR","KAZ","KWT","KGZ","LAO","LBN","MYS","MDV","MNG",
-            "MMR","NPL","PRK","OMN","PAK","PHL","QAT","SAU","SGP","KOR","LKA","SYR","TWN",
-            "TJK","THA","TLS","TUR","TKM","ARE","UZB","VNM","YEM"
+            "MMR","NPL","PRK","OMN","PAK","PHL","QAT","RUS","SAU","SGP","KOR","LKA","SYR",
+            "TWN","TJK","THA","TLS","TUR","TKM","ARE","UZB","VNM","YEM"
         ],
         "Europe": [
             "ALB","AND","AUT","BLR","BEL","BIH","BGR","HRV","CZE","DNK","EST","FIN","FRA",
             "DEU","GRC","HUN","ISL","IRL","ITA","XKX","LVA","LIE","LTU","LUX","MLT","MDA",
-            "MCO","MNE","NLD","MKD","NOR","POL","PRT","ROU","RUS","SMR","SRB","SVK","SVN",
-            "ESP","SWE","CHE","UKR","GBR","VAT"
+            "MCO","MNE","NLD","MKD","NOR","POL","PRT","ROU","SMR","SRB","SVK","SVN","ESP",
+            "SWE","CHE","UKR","GBR","VAT"
         ],
         "North America": [
             "ATG","BHS","BRB","BLZ","CAN","CRI","CUB","DMA","DOM","SLV","GRD","GTM","HTI",
@@ -51,7 +50,17 @@ function displayMap(continents) {
             "AUS","FJI","KIR","MHL","FSM","NRU","NZL","PLW","PNG","WSM","SLB","TON","TUV","VUT"
         ],
         "Antarctica": ["ATA"]
-    }
+    };
+
+    // Mapping of continent centers based on latitudes and longitudes for label positions
+    const continentCenters = {
+        "Africa": {lat: 2, lon: 22},
+        "Asia": {lat: 45, lon: 90},
+        "Europe": {lat: 54, lon: 20},
+        "North America": {lat: 45, lon: -100},
+        "South America": {lat: -15, lon: -60},
+        "Oceania": {lat: -25, lon: 135}
+    };
     
     // Assign the continent values to each of their countries
     Object.entries(continents).forEach(([name, value]) => {
@@ -71,9 +80,7 @@ function displayMap(continents) {
         locationmode: 'ISO-3',
         locations: locations,
         z: values,
-        text: text,
-        hoverinfo: 'text',
-        reversescale: false,
+        hoverinfo: 'skip',
         zmin: -3,
         zmax: 5,
         colorscale: [
@@ -85,6 +92,58 @@ function displayMap(continents) {
         ],
         showscale: true
     }];
+
+    // Build the label positions based on continent centers
+    let labelLats = [];
+    let labelLons = [];
+    let labelText = [];
+
+    Object.entries(continents).forEach(([name, value]) => {
+        let center = continentCenters[name];
+        
+        if(!center || value == null || value == undefined) {
+            return;
+        }
+        
+        // Convert the prediction value to be used as the label text into a string
+        let pred_value = Number(value).toFixed(2)
+        
+        labelLats.push(center.lat);
+        labelLons.push(center.lon);
+        
+        // Handle both negative and positive temperature anomaly predictions
+        if(pred_value >= 0){
+            labelText.push("+" + pred_value + "°C")
+        } else {
+            labelText.push(pred_value + "°C")
+        }
+        
+    });
+
+    mapData.push({
+        type: 'scattergeo',
+        lat: labelLats,
+        lon: labelLons,
+        text: labelText,
+        mode: 'markers+text',
+        textposition: 'middle center',
+        textfont: {
+            color: '#ffffff',
+            size: 11,
+            family: 'Comfortaa'
+        },
+        marker: {
+            size: 50,
+            color: 'rgba(0, 0, 0, 0.45)',
+            line: {
+                color: 'rgba(255, 255, 255, 0.2)',
+                width: 1
+            },
+            symbol: 'circle'
+        },
+        hoverinfo: 'skip',
+        showlegend: false
+    });
     
     // Configure the layout
     const layout = {
@@ -98,7 +157,6 @@ function displayMap(continents) {
             showocean: true,
             oceancolor: '#0D1117',
             showcountries: false,
-            countrycolor: '#30363D',
             countrywidth: 0.5,
             showlakes: false
         },
