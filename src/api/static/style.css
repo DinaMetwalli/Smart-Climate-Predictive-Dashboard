@@ -24,6 +24,8 @@
     --shadow: rgba(0, 0, 0, 0.4);
     --danger: #ff6b6e;
     --danger-dark: #d54040;
+    --error: rgba(255, 55, 95, 0.15);
+    --error-border: #8b2138;
     --save: #c8ffea;
     --save-accent: #e3a4f9;
     --save-text: #1b3931;
@@ -322,6 +324,10 @@ body {
 .nav-item.active .nav-icon-history {
     opacity: 1;
     color: var(--history-primary) !important;
+}
+
+.nav-item.active .nav-icon-about {
+    opacity: 1;
 }
 
 /* -- Main Content -- */
@@ -913,8 +919,8 @@ input[type="file"] {
 }
 
 .error-message {
-    background: rgba(255, 55, 95, 0.15);
-    border: 1px solid var(--secondary);
+    background: var(--error);
+    border: 1px solid var(--error-border);
     color: var(--danger);
     padding: 1rem 1.2rem;
     border-radius: 12px;

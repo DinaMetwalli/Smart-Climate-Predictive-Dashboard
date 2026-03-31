@@ -44,9 +44,6 @@ def analyse_user_upload():
             "start_date": start_date,
         }
 
-        saved = session["analysis_meta"]["saved"]
-        print(f"saved analysis -> {saved}")
-
         return redirect("/")
     
     except Exception as e:

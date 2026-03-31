@@ -1,6 +1,7 @@
 import pandas as pd
 import xarray as xr
 import numpy as np
+import io
 
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError, FileTypeMismatchError
 
@@ -72,9 +73,13 @@ class CustomDatasetRetriever:
         try:
             if file_type == "csv":
                 data = pd.read_csv(file)
-            else:
-                ds = xr.open_dataset(file)
-                data = ds.to_dataframe().reset_index()
+            else: # netcdf upload
+                if hasattr(file, "read"):  # Flask upload
+                    ds = xr.open_dataset(io.BytesIO(file.read()))
+                else:  # File path
+                    ds = xr.open_dataset(file)
+
+                data = ds.to_dataframe().reset_index(drop=True)
 
         except Exception:
             raise FileProcessingError(f"An error was encountered when opening the file {file}.")

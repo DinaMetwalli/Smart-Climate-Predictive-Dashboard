@@ -1,13 +1,17 @@
 import pandas as pd
 import numpy as np
 import torch
+import pickle
+import os
+
 import torch.nn as nn
 import torch.utils.data as data
 import matplotlib.pyplot as plt
-import pickle
+
 from sklearn.preprocessing import MinMaxScaler
 from sktime.forecasting.model_selection import SlidingWindowSplitter
-import os
+
+from src.utils.errors import NotEnoughDataError
 
 class ClimateForecastingModel():
     def __init__(self, seq_len: int = 120, forecast_num: int = 60, model_file: str = None, scaler_file: str = None):
@@ -271,9 +275,6 @@ class ClimateForecastingModel():
 
     def predict_future(self, region_df: pd.DataFrame, region: str, months_to_test: int = 48, test_future: bool = True):
         """Handles both backtesting and future prediction requests."""
-        
-        if region not in self.regions:
-            raise ValueError(f"Unknown region '{region}'... Choose from {self.regions}.")
 
         encoded = self.__encode_cyclical_data(region_df)
         encoded[:, 0:1] = self.anomaly_scalers[region].transform(encoded[:, 0:1])
@@ -290,8 +291,8 @@ class ClimateForecastingModel():
             steps_to_predict  = months_to_test
 
         if predict_start_idx - self.seq_len < 0:
-            raise ValueError(
-                f"Not enough history for '{region}'. Need at least {self.seq_len + months_to_test} rows, got {total_len}."
+            raise NotEnoughDataError(
+                f"Not enough history in uploaded dataset(s). Need at least {self.seq_len + months_to_test} rows, got {total_len}."
             )
 
         window = encoded[predict_start_idx - self.seq_len : predict_start_idx]
