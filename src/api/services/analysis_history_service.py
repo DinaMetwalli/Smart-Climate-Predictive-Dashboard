@@ -1,6 +1,6 @@
 from src.utils.database_config import db
 from collections import defaultdict
-import datetime;
+from datetime import datetime
 
 class AnalysisHistoryService():
     def __init__(self):
@@ -11,9 +11,10 @@ class AnalysisHistoryService():
                                      filenames: list,
                                      predictions:dict,
                                      stats: dict,
-                                     errors: dict) -> bool:
+                                     errors: dict,
+                                     start_date: datetime) -> bool:
         
-        analysis_id = self.create_analysis_entry(user_id, analysis_name)
+        analysis_id = self.create_analysis_entry(user_id, analysis_name, start_date)
 
         # Fetch region IDs map once to be reused in saving predictions, errors, and stats
         regions = list(predictions.keys())
@@ -31,11 +32,11 @@ class AnalysisHistoryService():
 
         return True
     
-    def create_analysis_entry(self, user_id:str, analysis_name: str) -> str:
-        timestamp = datetime.datetime.now()
+    def create_analysis_entry(self, user_id:str, analysis_name: str, start_date: datetime) -> str:
+        timestamp = datetime.now()
         analysis_id = db.execute_fetch_and_commit(
-            "INSERT INTO analysis_history (analysis_name, creation_timestamp, user_id) VALUES (%s, %s, %s) RETURNING id",
-            analysis_name, timestamp, user_id
+            "INSERT INTO analysis_history (analysis_name, creation_timestamp, prediction_start_date, user_id) VALUES (%s, %s, %s, %s) RETURNING id",
+            analysis_name, timestamp, start_date, user_id
             )
         return analysis_id
         
@@ -117,6 +118,16 @@ class AnalysisHistoryService():
                 analysis_id
             )
         
+        prediction_start_date_result = db.execute_and_fetch_one(
+            "SELECT prediction_start_date FROM analysis_history \
+            WHERE id = %s \
+            LIMIT 1;",
+            analysis_id
+        )
+
+        prediction_start_date = prediction_start_date_result[0]
+        print(prediction_start_date)
+        
         for pred in preds_result:
             predictions[pred[0]].append(float(pred[3]))
 
@@ -130,7 +141,7 @@ class AnalysisHistoryService():
                 'pearson_corr': float(stat[4])
             }
         
-        return predictions, stats, errors
+        return predictions, stats, errors, prediction_start_date
     
     def delete_analysis(self, analysis_ids:list) -> None:
         analyses_tuple = tuple(analysis_ids)

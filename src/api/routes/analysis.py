@@ -31,7 +31,7 @@ def analyse_user_upload():
     service = current_app.config["ANALYSIS-SERVICE"]
 
     try:
-        predictions, stats, errors = service.run_custom_analysis(files, filenames)
+        predictions, stats, errors, start_date = service.run_custom_analysis(files, filenames)
         session["predictions"] = predictions
         session["stats"] = stats
         session["errors"] = errors
@@ -41,6 +41,7 @@ def analyse_user_upload():
             "filenames": filenames,
             "file_count": len(filenames),
             "saved": False,
+            "start_date": start_date,
         }
 
         saved = session["analysis_meta"]["saved"]
@@ -61,6 +62,7 @@ def save_custom_analysis_results():
         analysis_meta = session["analysis_meta"]
         analysis_name = analysis_meta["name"]
         filenames = analysis_meta["filenames"]
+        start_date = analysis_meta["start_date"]
         predictions = session["predictions"]
         stats = session["stats"]
         errors = session["errors"]
@@ -71,7 +73,8 @@ def save_custom_analysis_results():
                                                      filenames,
                                                      predictions,
                                                      stats,
-                                                     errors)
+                                                     errors,
+                                                     start_date)
 
         meta = session["analysis_meta"]
         meta["saved"] = True
@@ -108,9 +111,14 @@ def get_predictions(month_index):
     service = current_app.config["ANALYSIS-SERVICE"]
     
     predictions = session.get("predictions")
-
+    meta = session.get("analysis_meta")
+    start_date = None
+    
+    if meta["type"] == "custom":
+        start_date = meta["start_date"]
+    
     try:
-        response = service.get_analysis_results(month_index, predictions)
+        response = service.get_analysis_results(month_index, predictions, start_date)
         return jsonify(response)
     
     except Exception as e:

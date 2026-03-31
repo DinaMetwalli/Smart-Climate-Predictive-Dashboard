@@ -2,7 +2,7 @@ from data.preparation.custom_data_retriever import CustomDatasetRetriever
 from data.preparation.data_loader import DataLoader
 from src.forecasting_model import ClimateForecastingModel
 
-import datetime
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 class AnalysisService():
@@ -21,7 +21,7 @@ class AnalysisService():
         combined_errors = {}
         
         for region, data in datasets.items():
-            processed_ds = self.loader.load_data(data)
+            processed_ds, start_date = self.loader.load_data(data)
         
             predictions = self.model.predict_future(region_df=processed_ds,
                                                     region=region,
@@ -37,7 +37,7 @@ class AnalysisService():
             combined_stats[region] = stats
             combined_errors[region] = errors
 
-        return combined_preds, combined_stats, combined_errors
+        return combined_preds, combined_stats, combined_errors, start_date
     
     def run_live_analysis(self) -> dict:
         processed_ds = self.loader.load_data()
@@ -63,10 +63,14 @@ class AnalysisService():
         
         return combined_preds, combined_stats, combined_errors
     
-    def get_analysis_results(self, month_index: int, predictions: dict) -> dict:
-        current_time = datetime.datetime.today() 
-        date = current_time + relativedelta(months=month_index)
-        date = date.strftime('%Y-%m')
+    def get_analysis_results(self, month_index: int, predictions: dict, start_date: datetime) -> dict:
+        if start_date:
+            date = start_date + relativedelta(months=month_index)
+            date = date.strftime('%Y-%m')
+        else:
+            current_time = datetime.today()
+            date = current_time + relativedelta(months=month_index)
+            date = date.strftime('%Y-%m')
 
         continent_map = {
             "North America": "northAmerica",

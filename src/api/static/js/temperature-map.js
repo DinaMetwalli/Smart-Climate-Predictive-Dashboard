@@ -185,7 +185,7 @@ function displayMap(continents) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.getElementById('monthSlider');
+    const slider = document.getElementById('month-slider');
     const sliderDate = document.getElementById('slider-date');
 
     slider.addEventListener('input', function() {
