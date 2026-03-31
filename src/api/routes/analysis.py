@@ -114,7 +114,7 @@ def get_predictions(month_index):
     meta = session.get("analysis_meta")
     start_date = None
     
-    if meta["type"] == "custom":
+    if meta and meta["type"] == "custom":
         start_date = meta["start_date"]
     
     try:

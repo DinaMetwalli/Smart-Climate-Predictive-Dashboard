@@ -455,6 +455,7 @@ body {
     animation: scaleIn 0.6s ease-out backwards;
     opacity: 0.5;
     cursor: not-allowed;
+    color: var(--text-secondary);
 }
 
 .button-icon {

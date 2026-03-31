@@ -33,15 +33,15 @@
                 <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
                 Analysis
             </a>
-            <a href="/upload" class="nav-item">
-                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
-                Upload
-            </a>
             <a href="/charts" class="nav-item">
                 <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
                 Charts
             </a>
             {% if session.username %}
+            <a href="/upload" class="nav-item">
+                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
+            </a>
             <form method="GET" action="/api/user/analysis/history">
                 <button type="submit" class="nav-item">
                     <span class="nav-icon nav-icon-history" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
@@ -49,6 +49,10 @@
                 </button>
             </form>
             {% else %}
+            <a href="/upload" class="nav-item disabled">
+                <span class="nav-icon" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
+            </a>
             <button type="submit" class="nav-item disabled">
                 <span class="nav-icon" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
                 History
@@ -92,6 +96,7 @@
                     </button>
                 </form>
 
+                {% if session.username %}
                 <form action="/upload" method="GET" enctype="multipart/form-data">
                     <button class="action-button" type="submit">
                         <div class="button-icon"><i class="fa-solid fa-diagram-next"></i></div>
@@ -99,8 +104,6 @@
                         <div class="button-description">Select your own files to analyze</div>
                     </button>
                 </form>
-
-                {% if session.username %}
                 <form method="GET" action="/api/user/analysis/history" enctype="multipart/form-data">
                     <button class="action-button">
                         <div class="button-icon"><i class="fa-solid fa-book-bookmark"></i></div>
@@ -110,9 +113,14 @@
                 </form>
                 {% else %}
                 <div class="btn-disabled">
+                    <div class="button-icon"><i class="fa-solid fa-diagram-next"></i></div>
+                    <div class="button-label">Custom Analysis</div>
+                    <div class="button-description">Login to upload your own datasets to analyse.</div>
+                </div>
+                <div class="btn-disabled">
                     <div class="button-icon"><i class="fa-solid fa-book-bookmark"></i></div>
-                    <div class="button-label" style="color: var(--text-secondary)">Run Previous Analysis</div>
-                    <div class="button-description">Login to choose a previous entry from your history</div>
+                    <div class="button-label">Run Previous Analysis</div>
+                    <div class="button-description">Login to choose a previous entry from your custom analysis history</div>
                 </div>
                 {% endif %}
 

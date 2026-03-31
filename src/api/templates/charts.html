@@ -36,13 +36,14 @@
                 <span class="nav-icon nav-icon-analysis" style="color: var(--analysis);"><i class="fa-solid fa-bolt"></i></span>
                 Analysis
             </a>
-            <a href="/upload" class="nav-item">
-                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
-                Upload
-            </a>
             <a href="/charts" class="nav-item active">
                 <span class="nav-icon nav-icon-charts" style="color: var(--charts);"><i class="fa-solid fa-chart-pie"></i></span>
                 Charts
+            </a>
+            {% if session.username %}
+            <a href="/upload" class="nav-item">
+                <span class="nav-icon nav-icon-upload" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
             </a>
             <form method="GET" action="/api/user/analysis/history">
                 <button type="submit" class="nav-item">
@@ -50,6 +51,16 @@
                     History
                 </button>
             </form>
+            {% else %}
+            <a href="/upload" class="nav-item disabled">
+                <span class="nav-icon" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
+                Upload
+            </a>
+            <button type="submit" class="nav-item disabled">
+                <span class="nav-icon" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
+                History
+            </button>
+            {% endif %}
         </nav>
 
         <!-- Main Content Area -->
