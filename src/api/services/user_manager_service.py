@@ -88,6 +88,11 @@ class UserManagerService:
         return False
         
     def delete_user(self, user_id:str) -> bool:
+        # Get all associated analysis IDs with the user
+        analyses = db.execute_and_fetch_all("SELECT id FROM analysis_history WHERE user_id = %s", user_id)
+        # Delete their upload history
+        db.execute_and_commit("DELETE FROM analysis_uploads WHERE analysis_id IN %s", analyses[0])
+        # Deactivate their account
         deactivate = db.execute_and_commit(
             "UPDATE users SET active = %s WHERE id = %s",
             False, user_id
