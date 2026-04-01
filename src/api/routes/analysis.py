@@ -16,11 +16,12 @@ def analyse_user_upload():
     files = request.files.getlist("file")
     filenames = []
 
-    if files is None:
-        return jsonify({"error": "No file selected."}), 400
+    if files[0].filename == "":
+        error = "No file selected."
+        return render_template("upload.html", error=error)
     
     if analysis_name is None:
-        return jsonify({"error": "Please provide a name for the analysis."}), 400
+        return render_template("upload.html", error="Analysis Name field cannot be empty.")
     
     print(f"Processing Analysis '{analysis_name}'...")
     
@@ -46,9 +47,9 @@ def analyse_user_upload():
 
         return redirect("/")
     
-    except Exception as e:
-        print(str(e))
-        return render_template("upload.html", error=str(e))
+    except Exception:
+        error = "There was an issue processing your upload."
+        return render_template("upload.html", error=error)
 
 @analysis_bp.route("/custom/save", methods=["POST"])
 @authorize
@@ -79,8 +80,8 @@ def save_custom_analysis_results():
 
         return redirect("/api/user/analysis/history")
     except Exception as e:
-        print(str(e))
-        return render_template("index.html", error=str(e))
+        error = "There was an issue saving your results."
+        return render_template("index.html", error=error)
 
 @analysis_bp.route("/live", methods=["GET"])
 def analyse_live_request():
@@ -119,5 +120,5 @@ def get_predictions(month_index):
         return jsonify(response)
     
     except Exception as e:
-        print(str(e))
-        return render_template("index.html", error=str(e))
+        error = "There was an issue rendering your analysis results."
+        return render_template("index.html", error=error)
