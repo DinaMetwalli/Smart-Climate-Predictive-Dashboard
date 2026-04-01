@@ -147,11 +147,17 @@ class AnalysisHistoryService():
         analyses_tuple = tuple(analysis_ids)
 
         db.execute_and_commit("DELETE FROM predictions WHERE analysis_id IN %s", analyses_tuple)
+        db.execute_and_commit("DELETE FROM analysis_errors WHERE analysis_id IN %s", analyses_tuple)
+        db.execute_and_commit("DELETE FROM analysis_stats WHERE analysis_id IN %s", analyses_tuple)
         db.execute_and_commit("DELETE FROM analysis_uploads WHERE analysis_id IN %s", analyses_tuple)
         db.execute_and_commit("DELETE FROM analysis_history WHERE id IN %s", analyses_tuple)
 
     def delete_all_analyses(self, user_id) -> None:
         analyses = db.execute_and_fetch_all("SELECT id FROM analysis_history WHERE user_id = %s", user_id)
+
+        if not analyses:
+            return
+
         analyses_tuple = tuple(analysis[0] for analysis in analyses)
 
         db.execute_and_commit("DELETE FROM predictions WHERE analysis_id IN %s", analyses_tuple)
