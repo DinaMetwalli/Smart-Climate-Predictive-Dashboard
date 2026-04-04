@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
 import requests
+from datetime import datetime
 from owid.catalog import fetch
 
 class DataLoader():
     def __init__(self):
         print("→ insitialized DataLoader ←")
 
-    def load_data(self, file_data: pd.DataFrame = None) -> dict | pd.DataFrame:
+    def load_data(self, file_data: pd.DataFrame = None) -> dict | tuple[datetime, pd.DataFrame]:
         """
         Dynamically loads the dataset depending on its type (file upload or API call)
         """
@@ -17,7 +18,7 @@ class DataLoader():
             return self.__process_file_data(file_data)
 
         
-    def __process_file_data(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __process_file_data(self, df: pd.DataFrame) -> tuple[str, pd.DataFrame]:
         """
         Processes a dataset opened from the file type.
 
@@ -33,9 +34,10 @@ class DataLoader():
         df['Anomaly'] = df['Anomaly'].astype(float)
         df = df.set_index('Date')
 
-        print(df.head())
+        start_date = df.index[-1]
+        date = datetime.strptime(str(start_date), "%Y%m")
 
-        return df
+        return df, date
     
     def __process_regional_api_data(self) -> dict:
         """

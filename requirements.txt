@@ -53,3 +53,4 @@ xarray==2025.12.0
 Werkzeug==3.1.5
 owid-catalog==1.0.1
 plotly==6.6.0
+flask-session==0.8.0

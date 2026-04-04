@@ -17,56 +17,57 @@ INVALID_FILES = [
     ("Unsupported_Regions.csv", "IncompatibleDataError"),
     ("Too_Many_Regions.csv", "IncompatibleDataError")
 ]
+
 CORRECT_CSV_FILE = "Correct_CSV_File.csv"
 CORRECT_NC_FILE = "Correct_NC_File.nc"
 
 
 def test_upload_csv_file():
     file = os.path.join(FILE_PATH, CORRECT_CSV_FILE)
-    retriever = CustomDatasetRetriever(files=[file], filenames=[CORRECT_CSV_FILE])
+    retriever = CustomDatasetRetriever()
 
-    dataset, regions_list = retriever.load_dataset_from_file()
+    all_dfs = retriever.load_dataset_from_file(files=[file], filenames=[CORRECT_CSV_FILE])
     
-    assert dataset is not None
-    assert regions_list is not None
+    assert all_dfs is not None
+    assert type(all_dfs) == dict
 
-    assert type(dataset) == pd.DataFrame
-    assert type(regions_list) == list
-
-    assert "Date" in dataset.columns
-    assert "Anomaly" in dataset.columns
-    assert "Region" in dataset.columns
+    for _, df in all_dfs.items():
+        assert "Date" in df.columns
+        assert "Anomaly" in df.columns
+        assert "Region" in df.columns
+        assert "Temperature" in df.columns
 
 def test_upload_nc_file():
     file = os.path.join(FILE_PATH, CORRECT_NC_FILE)
-    retriever = CustomDatasetRetriever(files=[file], filenames=[CORRECT_NC_FILE])
+    retriever = CustomDatasetRetriever()
 
-    dataset, regions_list = retriever.load_dataset_from_file()
+    all_dfs = retriever.load_dataset_from_file(files=[file], filenames=[CORRECT_NC_FILE])
     
-    assert dataset is not None
-    assert regions_list is not None
+    assert all_dfs is not None
+    assert type(all_dfs) == dict
 
-    assert type(dataset) == pd.DataFrame
-    assert type(regions_list) == list
-
-    assert "Date" in dataset.columns
-    assert "Anomaly" in dataset.columns
-    assert "Region" in dataset.columns
+    for _, df in all_dfs.items():
+        assert "Date" in df.columns
+        assert "Anomaly" in df.columns
+        assert "Region" in df.columns
+        assert "Temperature" in df.columns
 
 def test_cant_upload_different_file_types():
     csv_file = os.path.join(FILE_PATH, CORRECT_CSV_FILE)
     nc_file = os.path.join(FILE_PATH, CORRECT_NC_FILE)
-    retriever = CustomDatasetRetriever(files=[csv_file, nc_file], filenames=[CORRECT_CSV_FILE, CORRECT_NC_FILE])
+    retriever = CustomDatasetRetriever()
 
     with pytest.raises(FileTypeMismatchError):
-        retriever.load_dataset_from_file()
+        retriever.load_dataset_from_file(files=[csv_file, nc_file], filenames=[CORRECT_CSV_FILE, CORRECT_NC_FILE])
 
 @pytest.mark.parametrize("filename, expected_exception", INVALID_FILES)
 def test_invalid_uploads(filename, expected_exception):
+    # Test all invalid uploads with the remaining files in the INVALID_FILES list
+    
     file_path = os.path.join(FILE_PATH, filename)
-    retriever = CustomDatasetRetriever(files=[file_path], filenames=[filename])
+    retriever = CustomDatasetRetriever()
 
     exception_class = getattr(__import__("src.utils.errors", fromlist=[expected_exception]), expected_exception)
 
     with pytest.raises(exception_class):
-        retriever.load_dataset_from_file()
+        retriever.load_dataset_from_file(files=[file_path], filenames=[filename])

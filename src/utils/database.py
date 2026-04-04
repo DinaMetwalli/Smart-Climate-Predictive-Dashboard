@@ -87,13 +87,35 @@ class Database:
             raise
         
         return cur
+
+    def execute_many(self, query: str, rows) -> psycopg2.extensions.cursor:
+        cur = self.connection.cursor()
+        try:
+            cur.executemany(query, rows)
+        except psycopg2.Error as e:
+            if self.connection:
+                self.connection.rollback()
+            print(f"Error executing query... Error: {e}")
+            raise
+
+        return cur
     
     def execute_and_fetch_one(self, query: str, *vars: Any) -> Optional[Any]:
         cur = self.execute(query, *vars)
         return cur.fetchone()
+
+    def execute_fetch_and_commit(self, query: str, *vars: Any) -> Optional[Any]:
+        cur = self.execute(query, *vars)
+        result = cur.fetchone()
+        self.connection.commit()
+        return result
     
-    def execute_and_commit(self, query: str, *vars: Any) -> None:
+    def execute_and_commit(self, query: str, *vars: Any) -> str:
         self.execute(query, *vars)
+        self.connection.commit()
+
+    def execute_many_and_commit(self, query:str, rows) -> None:
+        self.execute_many(query, rows)
         self.connection.commit()
 
     def execute_and_fetch_all(self, query: str, *vars: Any) -> list[tuple]:
@@ -121,7 +143,7 @@ class Database:
 
         print("="*60)
 
-    def __verify_database_exists(self):
+    def __verify_database_exists(self) -> None:
         print("→ Testing PostgreSQL database connection...")
         test_dbname = "postgres"
         self.__create_db_connection(test_dbname)

@@ -1,23 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for, render_template
 
 user_bp = Blueprint("user_bp", __name__)
-
-@user_bp.route("/users", methods=["GET"])
-def get_all_users():
-    """
-    Get all active users.
-    """
-    print("Fetching all users...")
-
-    user_manager = current_app.config["USER-MANAGER"]
-
-    try:
-        users = user_manager.get_all_users()
-        if users:
-            return jsonify({"success": True, 'users': users}), 200
-        return jsonify({"success": False, "error": "No users registered."}), 404
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
     
 @user_bp.route("/users/<username>", methods=["POST"])
 def get_user(username):
@@ -48,14 +31,15 @@ def register_user():
 
     # Validate all needed parameters are present in request
     if not username or not password:
-        return jsonify({"success": False, "error": "Username and password required"}), 400
+        error = "Username and password required."
+        return render_template("register.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
     try:
         result = user_manager.register_user(username, password, same_password)
         if result:
-            return jsonify({"success": True, "message": "User registered"}), 201
+            return redirect("/login")
     except Exception as e:
         return render_template("register.html", error=str(e))
 
@@ -68,7 +52,8 @@ def login_user():
     password = request.form.get('password')
     
     if not username or not password:
-        return jsonify({"success": False, "error": "Username and password required"}), 400
+        error = "Username and password required."
+        return render_template("login.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
@@ -76,13 +61,18 @@ def login_user():
         user = user_manager.login_user(username, password)
         if user:
             
+            session.clear()
+            
             # Store user info in session
             session['user_id'] = user['id']
             session['username'] = user['username']
             session.permanent = True
 
             return redirect(url_for("pages_bp.index"))
-        return jsonify({"success": False, "error": "Invalid credentials"}), 401
+        
+        error="Invalid username or password."
+        return render_template("login.html", error = error)
+    
     except Exception as e:
         return render_template("login.html", error=str(e))
     
@@ -92,36 +82,74 @@ def logout_user():
     
     session.clear()
     return redirect(url_for("pages_bp.index"))
-
-@user_bp.route("/users/me", methods=["GET"])
-def get_current_user():
-    """Get currently logged-in user info."""
-
-    if 'user_id' not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
     
-    return jsonify({
-        "success": True,
-        "user": {
-            "id": session['user_id'],
-            "username": session['username']
-        }
-    }), 200
-    
-@user_bp.route("/users/delete", methods=["POST"])
+@user_bp.route("/user/delete", methods=["POST"])
 def delete_user():
     """Deactivate a user account."""
 
-    data = request.get_json()
-    user_id = data.get('user_id')
+    user_id = session["user_id"]
     
     if not user_id:
-        return jsonify({"success": False, "error": "User ID required in request"}), 400
+        error = "Error: no user is logged in."
+        return render_template("login.html", error = error)
     
     user_manager = current_app.config["USER-MANAGER"]
 
     try:
         user_manager.delete_user(user_id)
-        return jsonify({"success": True, "message": "Deleted user successfully."}), 200
+        session.clear()
+
+        return render_template("index.html")
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        return render_template("user.html", error=str(e))
+    
+@user_bp.route("/user/update/username", methods=["POST"])
+def change_username():
+    """Change the user account's username"""
+    user_id = session["user_id"]
+    username = request.form.get('username')
+    
+    # Validate all needed parameters are present in request
+    if not username:
+        error = "New username is required."
+        return render_template("user.html", error = error)
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        result = user_manager.update_username(user_id, username)
+        if result:
+            session.clear()
+            session['user_id'] = user_id
+            session['username'] = username
+            return render_template("user.html", success="Username updated.")
+    except Exception as e:
+        return render_template("user.html", error=str(e))
+
+@user_bp.route("/user/update/password", methods=["POST"])
+def change_password():
+    """Change the user account's password"""
+    user_id = session["user_id"]
+    curr_password = request.form.get('curr-password')
+    new_password = request.form.get('new-password')
+    
+    # Validate all needed parameters are present in request
+    if not curr_password:
+        error = "Current password is required."
+        return render_template("user.html", error = error)
+    elif not new_password:
+        error = "New password is required."
+        return render_template("user.html", error = error)
+
+    user_manager = current_app.config["USER-MANAGER"]
+
+    try:
+        result = user_manager.update_password(user_id, curr_password, new_password)
+        if result:
+            success = "Update successful. Please login using your new password."
+            return render_template("login.html", success = success)
+        else:
+            error = "There was an issue updating your password."
+            return render_template("user.html", error = error)
+    except Exception as e:
+        return render_template("user.html", error = str(e))

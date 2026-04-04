@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, render_template, redirect
 from flask import current_app
 
 from .utils.auth import authorize
@@ -16,11 +16,12 @@ def analyse_user_upload():
     files = request.files.getlist("file")
     filenames = []
 
-    if files is None:
-        return jsonify({"error": "No file selected."}), 400
+    if files[0].filename == "":
+        error = "No file selected."
+        return render_template("upload.html", error=error)
     
     if analysis_name is None:
-        return jsonify({"error": "Please provide a name for the analysis."}), 400
+        return render_template("upload.html", error="Analysis Name field cannot be empty.")
     
     print(f"Processing Analysis '{analysis_name}'...")
     
@@ -29,52 +30,96 @@ def analyse_user_upload():
         filenames.append(file.filename)
     
     service = current_app.config["ANALYSIS-SERVICE"]
-    history_service = current_app.config["HISTORY-SERVICE"]
 
     try:
-        predictions = service.run_custom_analysis(files, filenames)
-        
-        user_id = session['user_id']
-        history_service.save_custom_analysis_results(user_id, analysis_name, filenames)
-        return jsonify({
-            "message" : "File processed successfully.",
-            "data" : predictions
-        })
+        predictions, stats, errors, start_date = service.run_custom_analysis(files, filenames)
+        session["predictions"] = predictions
+        session["stats"] = stats
+        session["errors"] = errors
+        session["analysis_meta"] = {
+            "type": "custom",
+            "name": analysis_name,
+            "filenames": filenames,
+            "file_count": len(filenames),
+            "saved": False,
+            "start_date": start_date,
+        }
+
+        return redirect("/")
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return render_template("upload.html", error=str(e))
+
+@analysis_bp.route("/custom/save", methods=["POST"])
+@authorize
+def save_custom_analysis_results():
     
+    try:
+        user_id = session["user_id"]
+        analysis_meta = session["analysis_meta"]
+        analysis_name = analysis_meta["name"]
+        filenames = analysis_meta["filenames"]
+        start_date = analysis_meta["start_date"]
+        predictions = session["predictions"]
+        stats = session["stats"]
+        errors = session["errors"]
+
+        history_service = current_app.config["HISTORY-SERVICE"]
+        history_service.save_custom_analysis_results(user_id,
+                                                     analysis_name,
+                                                     filenames,
+                                                     predictions,
+                                                     stats,
+                                                     errors,
+                                                     start_date)
+
+        meta = session["analysis_meta"]
+        meta["saved"] = True
+        session["analysis_meta"] = meta
+
+        return redirect("/api/user/analysis/history")
+    except Exception as e:
+        print(str(e))
+        error = "There was an issue saving your results."
+        return render_template("index.html", error=error)
+
 @analysis_bp.route("/live", methods=["GET"])
 def analyse_live_request():
     print("User requested live analysis.")
 
     service = current_app.config["ANALYSIS-SERVICE"]
-    regions = ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']
 
     try:
-        predictions = service.run_live_analysis()
-        return jsonify({
-            "message": "Live analysis completed successfully.",
-            "data": predictions
-        })
+        predictions, stats, errors = service.run_live_analysis()
+        session["predictions"] = predictions
+        session["stats"] = stats
+        session["errors"] = errors
+        session["analysis_meta"] = {
+            "type": "live",
+        }
+        
+        return redirect("/")
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return render_template("index.html", error=str(e))
 
-# Temporary endpoint with dummy data to connect map with output values for testing! (will be changed later)
 @analysis_bp.route('/predictions/<int:month_index>')
 def get_predictions(month_index):
-    predictions = {
-        "month_index": month_index,
-        "date": "2026-06", # Should be calculated from current + the prediction's month index
-        "continents": {
-            "North America": 0.45,
-            "South America": 0.32,
-            "Europe": 0.58,
-            "Africa": 0.41,
-            "Asia": 0.52,
-            "Oceania": 0.38,
-            "Antarctica": 0.25
-        }
-    }
-    return jsonify(predictions)
+
+    service = current_app.config["ANALYSIS-SERVICE"]
+    
+    predictions = session.get("predictions")
+    meta = session.get("analysis_meta")
+    start_date = None
+    
+    if meta and meta["type"] == "custom":
+        start_date = meta["start_date"]
+    
+    try:
+        response = service.get_analysis_results(month_index, predictions, start_date)
+        return jsonify(response)
+    
+    except Exception as e:
+        print(str(e))
+        error = "There was an issue rendering your analysis results."
+        return render_template("index.html", error=error)

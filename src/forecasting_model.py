@@ -1,13 +1,17 @@
 import pandas as pd
 import numpy as np
 import torch
+import pickle
+import os
+
 import torch.nn as nn
 import torch.utils.data as data
 import matplotlib.pyplot as plt
-import pickle
+
 from sklearn.preprocessing import MinMaxScaler
 from sktime.forecasting.model_selection import SlidingWindowSplitter
-import os
+
+from src.utils.errors import NotEnoughDataError
 
 class ClimateForecastingModel():
     def __init__(self, seq_len: int = 120, forecast_num: int = 60, model_file: str = None, scaler_file: str = None):
@@ -61,7 +65,7 @@ class ClimateForecastingModel():
             
         print("→ Scalers saved to 'scalers.pkl'.")
 
-    def __encode_cyclical_data(self, dataset) -> np.ndarray:
+    def __encode_cyclical_data(self, dataset: pd.DataFrame) -> np.ndarray:
         """
         Add the year and month for contextualisation of different time periods
         This is done to help the model pick up on the upward-trend of anomaly increase and diff seasons
@@ -271,9 +275,6 @@ class ClimateForecastingModel():
 
     def predict_future(self, region_df: pd.DataFrame, region: str, months_to_test: int = 48, test_future: bool = True):
         """Handles both backtesting and future prediction requests."""
-        
-        if region not in self.regions:
-            raise ValueError(f"Unknown region '{region}'... Choose from {self.regions}.")
 
         encoded = self.__encode_cyclical_data(region_df)
         encoded[:, 0:1] = self.anomaly_scalers[region].transform(encoded[:, 0:1])
@@ -290,8 +291,8 @@ class ClimateForecastingModel():
             steps_to_predict  = months_to_test
 
         if predict_start_idx - self.seq_len < 0:
-            raise ValueError(
-                f"Not enough history for '{region}'. Need at least {self.seq_len + months_to_test} rows, got {total_len}."
+            raise NotEnoughDataError(
+                f"Not enough history in uploaded dataset(s). Need at least {self.seq_len + months_to_test} rows, got {total_len}."
             )
 
         window = encoded[predict_start_idx - self.seq_len : predict_start_idx]
@@ -309,7 +310,10 @@ class ClimateForecastingModel():
 
         if not test_future:
             actuals = region_df_actuals['Anomaly'].values[predict_start_idx : predict_start_idx + steps_to_predict]
-            self.__print_summary_stats(actuals, preds_rescaled.flatten(), f"Backtest ({region})")
+            # self.__print_summary_stats(actuals, preds_rescaled.flatten(), f"Backtest ({region})")
+            stats = self.get_summary_stats(actuals, preds_rescaled.flatten())
+            errors = self.get_horizon_errors(actuals, preds_rescaled.flatten())
+            return stats, errors
         
         # self.__plot_prediction(region_df_actuals, preds_rescaled, predict_start_idx, test_future, region)
         return preds_rescaled.flatten().tolist()
@@ -354,6 +358,47 @@ class ClimateForecastingModel():
         plt.tight_layout()
         plt.show()
 
+    def get_horizon_errors(self, actuals: torch.tensor, preds: torch.tensor) -> list:
+        """
+        Calculates the error at each step of the forecast.
+        """
+        if torch.is_tensor(actuals): actuals = actuals.numpy()
+        if torch.is_tensor(preds): preds = preds.numpy()
+        
+        actuals = actuals.flatten()
+        preds = preds.flatten()
+        
+        horizon_errors = []
+        
+        # Calculate the error at each month in the backtest
+        for h in range(len(actuals)):
+            step_error = abs(preds[h] - actuals[h])
+            horizon_errors.append(float(step_error))
+        
+        return horizon_errors
+
+    def get_summary_stats(self, y_true: torch.tensor, y_pred: torch.tensor) -> dict:
+        """Returns the predictions RMSE, bias, and correlation for the dataset passed"""
+        if torch.is_tensor(y_true): y_true = y_true.numpy()
+        if torch.is_tensor(y_pred): y_pred = y_pred.numpy()
+
+        y_true = y_true.flatten()
+        y_pred = y_pred.flatten()
+
+        stats = {}
+
+        errors = y_true - y_pred
+        rmse = np.sqrt(np.mean(errors**2))
+        mean_bias = np.mean(errors)
+        
+        pearson_corr = np.corrcoef(y_true, y_pred)[0, 1]
+
+        stats['rmse'] = float(rmse)
+        stats['mean_bias'] = float(mean_bias)
+        stats['pearson_corr'] = float(pearson_corr)
+
+        return stats
+    
     def __print_summary_stats(self, y_true, y_pred, dataset_name) -> None:
         """Print the predictions errors, bias, and correlation for the dataset passed"""
         if torch.is_tensor(y_true): y_true = y_true.numpy()

@@ -1,6 +1,7 @@
 import pandas as pd
 import xarray as xr
 import numpy as np
+import io
 
 from src.utils.errors import InvalidFileTypeError, FileProcessingError, IncompatibleDataError, FileTypeMismatchError
 
@@ -16,14 +17,14 @@ class CustomDatasetRetriever:
         :return: combined_df as the combined dataframe.
         :rtype: pd.DataFrame
         """
-        file_type = self.validate_file_type(filenames)
+        file_type = self.__validate_file_type(filenames)
 
         all_dfs = dict()
 
         for file in files:
-            ds = self.validate_columns(file, file_type)
-            self.validate_data_types(ds)
-            validated_ds, region = self.validate_regions(ds)
+            ds = self.__validate_columns(file, file_type)
+            self.__validate_data_types(ds)
+            validated_ds, region = self.__validate_regions(ds)
 
             all_dfs[region] = validated_ds
 
@@ -32,7 +33,7 @@ class CustomDatasetRetriever:
         
         return all_dfs
     
-    def validate_file_type(self, filenames: list) -> str:
+    def __validate_file_type(self, filenames: list) -> str:
         """
         Validates file type formats to be supported files only.
         
@@ -50,14 +51,14 @@ class CustomDatasetRetriever:
             elif filename.endswith(".nc"):
                 file_types.append("nc")
             else:
-                raise InvalidFileTypeError(f"Ivalid file type for file {filename} provided. Files must have CSV or NC extensions.")
+                raise InvalidFileTypeError("Invalid file type uploaded. Files must have CSV or NC extensions.")
             
         if len(set(file_types)) != 1:
             raise FileTypeMismatchError("Multi-file uploads cannot have conflicting file types. All uploaded file formats must be the same.")
         
         return file_types[0]
 
-    def validate_columns(self, file, file_type) -> pd.DataFrame:
+    def __validate_columns(self, file, file_type) -> pd.DataFrame:
         """
         Validates file structure to ensure columns match with the model's required inputs.
         
@@ -72,9 +73,13 @@ class CustomDatasetRetriever:
         try:
             if file_type == "csv":
                 data = pd.read_csv(file)
-            else:
-                ds = xr.open_dataset(file)
-                data = ds.to_dataframe().reset_index()
+            else: # netcdf upload
+                if hasattr(file, "read"):  # Flask upload
+                    ds = xr.open_dataset(io.BytesIO(file.read()))
+                else:  # File path
+                    ds = xr.open_dataset(file)
+
+                data = ds.to_dataframe().reset_index(drop=True)
 
         except Exception:
             raise FileProcessingError(f"An error was encountered when opening the file {file}.")
@@ -88,7 +93,7 @@ class CustomDatasetRetriever:
             
         return data
     
-    def validate_data_types(self, ds) -> None:
+    def __validate_data_types(self, ds: pd.DataFrame) -> None:
         """
         Validates the data types of the file's fields to match those expected by the model.
         
@@ -110,7 +115,7 @@ class CustomDatasetRetriever:
         if not np.issubdtype(ds['Temperature'].dtype, np.number):
             raise IncompatibleDataError("Provided column 'Temperature' contains non-numeric values.")
     
-    def validate_regions(self, ds) -> tuple[pd.DataFrame, str]:
+    def __validate_regions(self, ds) -> tuple[pd.DataFrame, str]:
         """
         Validates the regions in the data to match those expected by the model.
         
