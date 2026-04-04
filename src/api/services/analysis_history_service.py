@@ -14,7 +14,7 @@ class AnalysisHistoryService():
                                      errors: dict,
                                      start_date: datetime) -> bool:
         
-        analysis_id = self.create_analysis_entry(user_id, analysis_name, start_date)
+        analysis_id = self.__create_analysis_entry(user_id, analysis_name, start_date)
 
         # Fetch region IDs map once to be reused in saving predictions, errors, and stats
         regions = list(predictions.keys())
@@ -25,14 +25,14 @@ class AnalysisHistoryService():
         
         print(f"Analysis {analysis_name} saved to database with ID {analysis_id}.")
 
-        self.save_file_info(filenames, analysis_id)
-        self.save_prediction_values(analysis_id, predictions, region_id_map)
-        self.save_analysis_stats(analysis_id, stats, region_id_map)
-        self.save_analysis_errors(analysis_id, errors, region_id_map)
+        self.__save_file_info(filenames, analysis_id)
+        self.__save_prediction_values(analysis_id, predictions, region_id_map)
+        self.__save_analysis_stats(analysis_id, stats, region_id_map)
+        self.__save_analysis_errors(analysis_id, errors, region_id_map)
 
         return True
     
-    def create_analysis_entry(self, user_id:str, analysis_name: str, start_date: datetime) -> str:
+    def __create_analysis_entry(self, user_id:str, analysis_name: str, start_date: datetime) -> str:
         timestamp = datetime.now()
         analysis_id = db.execute_fetch_and_commit(
             "INSERT INTO analysis_history (analysis_name, creation_timestamp, prediction_start_date, user_id) VALUES (%s, %s, %s, %s) RETURNING id",
@@ -40,14 +40,14 @@ class AnalysisHistoryService():
             )
         return analysis_id
         
-    def save_file_info(self, filenames:list, analysis_id: str) -> None:
+    def __save_file_info(self, filenames:list, analysis_id: str) -> None:
         for file in filenames:
             db.execute_and_commit(
                 "INSERT INTO analysis_uploads (dataset_file_name, analysis_id) VALUES (%s, %s)",
                 file, analysis_id 
             )
 
-    def save_prediction_values(self, analysis_id, predictions, region_id_map) -> None:
+    def __save_prediction_values(self, analysis_id, predictions, region_id_map) -> None:
         rows = []
         for region, values in predictions.items():
             for i, value in enumerate(values):
@@ -58,7 +58,7 @@ class AnalysisHistoryService():
             rows
         )
 
-    def save_analysis_stats(self, analysis_id, stats, region_id_map) -> None:
+    def __save_analysis_stats(self, analysis_id, stats, region_id_map) -> None:
         rows = []
         for region, values in stats.items():
             rows.append((round(values['rmse'], 3), round(values['mean_bias'], 3), round(values['pearson_corr'], 3), analysis_id, region_id_map[region]))
@@ -68,7 +68,7 @@ class AnalysisHistoryService():
             rows
         )
 
-    def save_analysis_errors(self, analysis_id, errors, region_id_map) -> None:
+    def __save_analysis_errors(self, analysis_id, errors, region_id_map) -> None:
         rows = []
         for region, values in errors.items():
             for i, value in enumerate(values):
