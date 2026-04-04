@@ -49,19 +49,28 @@
                 </button>
             </form>
             {% else %}
-            <a href="/upload" class="nav-item disabled">
+            <a href="#" class="nav-item disabled">
                 <span class="nav-icon" style="color: var(--upload);"><i class="fa-solid fa-file-arrow-up"></i></span>
                 Upload
             </a>
-            <button type="submit" class="nav-item disabled">
+            <a href="#" class="nav-item disabled">
                 <span class="nav-icon" style="color: var(--history);"><i class="fa-solid fa-landmark-dome"></i></span>
                 History
-            </button>
+            </a>
             {% endif %}
+            <a href="/about" class="nav-item">
+                <span class="nav-icon nav-icon-about"><i class="fa-solid fa-circle-info"></i></span>
+                About
+            </a>
         </nav>
 
         <!-- Main Content Area -->
         <main class="main-content">
+
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+
             <!-- Analysis Output Window -->
             <div class="output-window">
                 <h2 class="output-header">Analysis Output</h2>
@@ -133,7 +142,7 @@
             {% if session.username %}
             <div class="panel-section">
                 <h3 class="panel-title">User Status</h3>
-                <a href="api/users/me" style="text-decoration: none;">
+                <a href="/account" style="text-decoration: none;">
                     <div class="info-card" style="transform: translateX(0px);">
                         <div class="status-badge">
                             <span class="status-dot"></span>

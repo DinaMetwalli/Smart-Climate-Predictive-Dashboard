@@ -1,23 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, session, redirect, url_for, render_template
 
 user_bp = Blueprint("user_bp", __name__)
-
-@user_bp.route("/users", methods=["GET"])
-def get_all_users():
-    """
-    Get all active users.
-    """
-    print("Fetching all users...")
-
-    user_manager = current_app.config["USER-MANAGER"]
-
-    try:
-        users = user_manager.get_all_users()
-        if users:
-            return jsonify({"success": True, 'users': users}), 200
-        return jsonify({"success": False, "error": "No users registered."}), 404
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
     
 @user_bp.route("/users/<username>", methods=["POST"])
 def get_user(username):
@@ -48,7 +31,8 @@ def register_user():
 
     # Validate all needed parameters are present in request
     if not username or not password:
-        return render_template("register.html", error="Username and password required")
+        error = "Username and password required."
+        return render_template("register.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
@@ -68,7 +52,8 @@ def login_user():
     password = request.form.get('password')
     
     if not username or not password:
-        return render_template("login.html", error="Username and password required")
+        error = "Username and password required."
+        return render_template("login.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
@@ -84,7 +69,10 @@ def login_user():
             session.permanent = True
 
             return redirect(url_for("pages_bp.index"))
-        return render_template("login.html", error="Invalid credentials")
+        
+        error="Invalid username or password."
+        return render_template("login.html", error = error)
+    
     except Exception as e:
         return render_template("login.html", error=str(e))
     
@@ -94,15 +82,6 @@ def logout_user():
     
     session.clear()
     return redirect(url_for("pages_bp.index"))
-
-@user_bp.route("/users/me", methods=["GET"])
-def get_current_user():
-    """Get currently logged-in user's account."""
-
-    if 'user_id' not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
-    
-    return redirect("/account")
     
 @user_bp.route("/user/delete", methods=["POST"])
 def delete_user():
@@ -111,7 +90,8 @@ def delete_user():
     user_id = session["user_id"]
     
     if not user_id:
-        return jsonify({"success": False, "error": "User ID required in request"}), 400
+        error = "Error: no user is logged in."
+        return render_template("login.html", error = error)
     
     user_manager = current_app.config["USER-MANAGER"]
 
@@ -131,7 +111,8 @@ def change_username():
     
     # Validate all needed parameters are present in request
     if not username:
-        return render_template("user.html", error="New username is required")
+        error = "New username is required."
+        return render_template("user.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
@@ -154,17 +135,21 @@ def change_password():
     
     # Validate all needed parameters are present in request
     if not curr_password:
-        return render_template("user.html", error="Current password is required")
+        error = "Current password is required."
+        return render_template("user.html", error = error)
     elif not new_password:
-        return render_template("user.html", error="New password is required")
+        error = "New password is required."
+        return render_template("user.html", error = error)
 
     user_manager = current_app.config["USER-MANAGER"]
 
     try:
         result = user_manager.update_password(user_id, curr_password, new_password)
         if result:
-            return render_template("user.html", success="Password updated.")
+            success = "Update successful. Please login using your new password."
+            return render_template("login.html", success = success)
         else:
-            return render_template("user.html", error="There was an issue updating your password.")
+            error = "There was an issue updating your password."
+            return render_template("user.html", error = error)
     except Exception as e:
-        return render_template("user.html", error=str(e))
+        return render_template("user.html", error = str(e))

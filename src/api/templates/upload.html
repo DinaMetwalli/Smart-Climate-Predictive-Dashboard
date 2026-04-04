@@ -45,6 +45,10 @@
                     History
                 </button>
             </form>
+            <a href="/about" class="nav-item">
+                <span class="nav-icon nav-icon-about"><i class="fa-solid fa-circle-info"></i></span>
+                About
+            </a>
         </nav>
 
         <!-- Main Content Area -->
@@ -63,12 +67,14 @@
                     </p>
                     
                     <ul>
-                        <li>Each file uploaded must contain the following columns: (Date, Anomaly, Region)</li>
+                        <li>Each file uploaded must contain the following columns: (Date, Anomaly, Region, Temperature)</li>
                         <li>The dates must be monthly, following the format YYYYMM.</li>
+                        <li>The anomalies and (absolute) temperatures must be numbers or decimals.</li>
                         <li>Each file can have only one continent inside for the region.</li>
                         <li>The list of available continents is: ['africa', 'asia', 'europe', 'northAmerica', 'southAmerica', 'oceania']</li>
-                        <li>Continent names should go in the 'Region' column and follow the same structure as the list above.</li>
-                        <li>Accepted file types are CSV and NC.</li>
+                        <li>Continent names should go in the 'Region' column and follow the same names as the list above.</li>
+                        <li>Each uploaded file must contain the same number of samples as any other files uploaded.</li>
+                        <li>Accepted file types are CSV and NetCDF.</li>
                     </ul>
                     <br>
                     <p>
@@ -98,7 +104,6 @@
                                 type="file"
                                 id="files"
                                 name="file"
-                                required
                                 multiple
                             >
 
@@ -128,7 +133,7 @@
             {% if session.username %}
             <div class="panel-section">
                 <h3 class="panel-title">User Status</h3>
-                <a href="api/users/me" style="text-decoration: none;">
+                <a href="/account" style="text-decoration: none;">
                     <div class="info-card" style="transform: translateX(0px);">
                         <div class="status-badge">
                             <span class="status-dot"></span>

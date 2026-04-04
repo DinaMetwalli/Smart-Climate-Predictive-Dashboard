@@ -26,7 +26,9 @@ def analysis_history():
         
         return render_template("history.html", analyses=analyses, error=error)
     except Exception as e:
-        return render_template("history.html", error=str(e))
+        print(str(e))
+        error = "There was an issue fetching your saved analyses"
+        return render_template("history.html", error = error)
 
 @user_history_bp.route("/user/analysis/history/select")
 @authorize
@@ -52,7 +54,8 @@ def analysis_prediction_values():
     
     except Exception as e:
         print(str(e))
-        return render_template("history.html", error=str(e))
+        error = "There was an issue fetching your analysis results."
+        return render_template("history.html", error = error)
     
 @user_history_bp.route("/user/analysis/history/delete", methods=["POST"])
 @authorize
@@ -73,7 +76,6 @@ def delete_analysis():
     
     except Exception as e:
         print(str(e))
-        
         error = "There was an error deleting the selected analyses."
         return redirect(f"/api/user/analysis/history?error={error}")
     
@@ -90,6 +92,5 @@ def delete_all_analyses():
     
     except Exception as e:
         print(str(e))
-        
         error = "There was an error deleting your analyses."
         return redirect(f"/api/user/analysis/history?error={error}")

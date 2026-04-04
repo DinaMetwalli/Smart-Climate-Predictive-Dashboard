@@ -47,9 +47,8 @@ def analyse_user_upload():
 
         return redirect("/")
     
-    except Exception:
-        error = "There was an issue processing your upload."
-        return render_template("upload.html", error=error)
+    except Exception as e:
+        return render_template("upload.html", error=str(e))
 
 @analysis_bp.route("/custom/save", methods=["POST"])
 @authorize
@@ -80,6 +79,7 @@ def save_custom_analysis_results():
 
         return redirect("/api/user/analysis/history")
     except Exception as e:
+        print(str(e))
         error = "There was an issue saving your results."
         return render_template("index.html", error=error)
 
@@ -120,5 +120,6 @@ def get_predictions(month_index):
         return jsonify(response)
     
     except Exception as e:
+        print(str(e))
         error = "There was an issue rendering your analysis results."
         return render_template("index.html", error=error)

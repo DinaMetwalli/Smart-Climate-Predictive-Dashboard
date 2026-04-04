@@ -45,13 +45,17 @@
                     History
                 </button>
             </form>
+            <a href="/about" class="nav-item">
+                <span class="nav-icon nav-icon-about"><i class="fa-solid fa-circle-info"></i></span>
+                About
+            </a>
         </nav>
 
         <!-- Main Content Area -->
         <main class="main-content">
             
             {% if error %}
-                <div class="error-message">{{ error }}</div>
+            <div class="error-message">{{ error }}</div>
             {% endif %}
 
             <div class="section-header">
@@ -124,7 +128,7 @@
             {% if session.username %}
             <div class="panel-section">
                 <h3 class="panel-title">User Status</h3>
-                <a href="api/users/me" style="text-decoration: none;">
+                <a href="/account" style="text-decoration: none;">
                     <div class="info-card" style="transform: translateX(0px);">
                         <div class="status-badge">
                             <span class="status-dot"></span>

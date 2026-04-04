@@ -26,8 +26,11 @@
     --danger-dark: #d54040;
     --error: rgba(255, 55, 95, 0.15);
     --error-border: #8b2138;
+    --success: #276152;
+    --success-border: #12b189;
+    --success-text: #7edfc7;
     --save: #c8ffea;
-    --save-accent: #e3a4f9;
+    --save-accent: #a4e8f9;
     --save-text: #1b3931;
     --save-shadow: #3d6c61;
     --save-shine: #fffae5;
@@ -497,6 +500,13 @@ body {
     z-index: 1;
 }
 
+.btn-account {
+    all: unset;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+}
+
 /* -- Right Panel -- */
 .right-panel {
     background: var(--bg-dark);
@@ -918,6 +928,16 @@ input[type="file"] {
     text-decoration: underline;
 }
 
+.success-message {
+    background: var(--success);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
 .error-message {
     background: var(--error);
     border: 1px solid var(--error-border);
@@ -1158,4 +1178,55 @@ input[type="file"] {
 
 .empty-state form {
     margin-top: 2rem;
+}
+
+/* -- About Page & Citations -- */
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.about-card {
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.about-icon {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.references-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.reference-card {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.reference-card:last-child {
+    border-bottom: none;
+}
+
+.reference-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.reference-text a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.reference-text a:hover {
+    text-decoration: underline;
 }
