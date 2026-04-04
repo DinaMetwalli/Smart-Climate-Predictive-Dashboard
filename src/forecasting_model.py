@@ -87,11 +87,10 @@ class ClimateForecastingModel():
         
         return df_encoded[feature_cols].values.astype(np.float32)
 
-    def __create_sequences(self, data_array, is_backtest=False):
-        """Creates sequences from the given dataframe."""
+    def __create_sequences(self, data_array):
+        """Creates seq-len windows from the given dataframe, sliding by 1 step."""
         
-        step = self.forecast_num if is_backtest else 1
-        
+        step = 1
         splitter = SlidingWindowSplitter(
             window_length=self.seq_len,
             fh=np.arange(1, self.forecast_num + 1),
@@ -152,6 +151,8 @@ class ClimateForecastingModel():
         print(f"Train sequences: {len(X_train)} | Test sequences: {len(X_test)}")
 
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.005)
+        
+        # Shuffles the input windows AFTER sequence creation, not the data directly to preserve temporal order.
         loader = data.DataLoader(data.TensorDataset(X_train, y_train), shuffle=True, batch_size=128)
         
         criterion = nn.MSELoss()
@@ -195,7 +196,6 @@ class ClimateForecastingModel():
                     self.model.load_state_dict(best_state)
                     break
 
-        # self.__plot_training_results(train_df, test_df)
         self.__plot_model_loss(train_rmse_values, val_rmse_values)
 
         with torch.no_grad():
@@ -203,7 +203,6 @@ class ClimateForecastingModel():
             test_pred_full  = self.model(X_test)
 
         self.__print_summary_stats(y_train, train_pred_full, "Training")
-        self.__print_summary_stats(y_test,  test_pred_full, "Validation")
 
     def __plot_training_results(self, train_df: pd.DataFrame, test_df: pd.DataFrame):
         """Plots the training vs test/validation fits against the actuals"""
@@ -310,12 +309,10 @@ class ClimateForecastingModel():
 
         if not test_future:
             actuals = region_df_actuals['Anomaly'].values[predict_start_idx : predict_start_idx + steps_to_predict]
-            # self.__print_summary_stats(actuals, preds_rescaled.flatten(), f"Backtest ({region})")
             stats = self.get_summary_stats(actuals, preds_rescaled.flatten())
             errors = self.get_horizon_errors(actuals, preds_rescaled.flatten())
             return stats, errors
         
-        # self.__plot_prediction(region_df_actuals, preds_rescaled, predict_start_idx, test_future, region)
         return preds_rescaled.flatten().tolist()
 
     def __plot_prediction(self, region_df, forecast_values, split_idx, test_future, region):
