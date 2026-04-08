@@ -1,0 +1,6 @@
+Date,Anomaly,Region,Temperature
+185001,-0.44,asia,22
+185002,0.001,asia,22.5
+185003,text,asia,30
+185004,14,asia,31.2
+185005,-0.9,asia,28
