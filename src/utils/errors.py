@@ -45,3 +45,6 @@ class UserDoesNotExistError(UserError):
 # -- Prediction errors --
 class NotEnoughDataError(UserError):
     """Error for when the uploaded custom analysis file doesn't have enough history to perform the prediction."""
+
+class APIConnectionError(UserError):
+    """Error for when connections to the live data API(s) fails (due to network or API issues)."""

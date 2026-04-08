@@ -4,6 +4,8 @@ import requests
 from datetime import datetime
 from owid.catalog import fetch
 
+from src.utils.errors import APIConnectionError
+
 class DataLoader():
     def __init__(self):
         print("→ insitialized DataLoader ←")
@@ -102,6 +104,7 @@ class DataLoader():
                 
             except Exception as e:
                 print(f"Failed to fetch data for {noaa_name}: {e}")
+                raise APIConnectionError("There was an issue fetching data for live analysis... Please try again later.")
                 
         # Combine all regions into one list
         return all_dfs
